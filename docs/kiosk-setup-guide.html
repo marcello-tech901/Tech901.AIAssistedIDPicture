@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiosk Setup Guide — Tech901 ID Photo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #003763;
+    --navy-soft: #e8f0f7;
+    --navy-wash: #f4f8fb;
+    --lime: #A4CC27;
+    --lime-bg: #f5fad8;
+    --lime-dark: #6d8a0f;
+    --near-black: #141414;
+    --white: #FFFFFF;
+    --gold: #FFBF3B;
+    --gold-bg: #fff8e6;
+    --gold-dark: #b8860b;
+    --red: #d63031;
+    --red-bg: #fdf0f0;
+    --text: #1a2a3a;
+    --text-secondary: #4a6070;
+    --text-dim: #7a8e9e;
+    --border: #dce4ec;
+    --border-light: #eef2f6;
+    --surface: #f7f9fb;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', -apple-system, sans-serif;
+    background: var(--white);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Top Banner ── */
+  .banner {
+    background: var(--navy);
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 70% 20%, rgba(164, 204, 39, 0.12), transparent),
+      radial-gradient(ellipse 50% 80% at 10% 80%, rgba(255, 191, 59, 0.08), transparent);
+  }
+
+  .banner-inner {
+    position: relative;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 40px 48px;
+  }
+
+  .banner-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 20px;
+  }
+
+  .banner-eyebrow .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--lime);
+  }
+
+  .banner h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 600;
+    line-height: 1.15;
+    margin-bottom: 14px;
+    font-optical-sizing: auto;
+  }
+
+  .banner p {
+    font-size: 17px;
+    color: rgba(255,255,255,0.72);
+    max-width: 540px;
+    font-weight: 300;
+  }
+
+  .banner-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .chip svg { width: 14px; height: 14px; opacity: 0.7; }
+
+  /* ── Main Content ── */
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  /* ── Table of Contents ── */
+  .toc {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 40px 0;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+  }
+
+  .toc a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .toc a:hover {
+    background: var(--navy-soft);
+    color: var(--navy);
+  }
+
+  .toc-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--navy);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* ── Steps ── */
+  .step {
+    margin-top: 52px;
+    scroll-margin-top: 24px;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--navy);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--near-black);
+    line-height: 1.3;
+  }
+
+  .step h2 small {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+
+  .step-body {
+    padding-left: 56px;
+  }
+
+  .step-body p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  .step-body p strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ── Code Blocks ── */
+  .code-block {
+    background: #0d1b2a;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+    border: 1px solid #1a2d40;
+  }
+
+  .code-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .code-bar-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.35);
+  }
+
+  .code-bar-copy {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.5);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .code-bar-copy:hover {
+    border-color: var(--lime);
+    color: var(--lime);
+  }
+
+  .code-content {
+    padding: 16px 20px;
+    overflow-x: auto;
+  }
+
+  .code-content pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #c8d6e5;
+    white-space: pre;
+    margin: 0;
+  }
+
+  .code-content .comment { color: #4a6a7a; }
+  .code-content .cmd { color: var(--lime); }
+  .code-content .flag { color: var(--gold); }
+  .code-content .string { color: #e8a87c; }
+  .code-content .var { color: #7ec8e3; }
+
+  /* ── Callout Boxes ── */
+  .callout {
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 20px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .callout-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .callout.warning {
+    background: var(--gold-bg);
+    border: 1px solid rgba(255, 191, 59, 0.35);
+    color: #5a4a10;
+  }
+
+  .callout.warning .callout-icon { background: rgba(255, 191, 59, 0.2); }
+
+  .callout.danger {
+    background: var(--red-bg);
+    border: 1px solid rgba(214, 48, 49, 0.2);
+    color: #5a1a1a;
+  }
+
+  .callout.danger .callout-icon { background: rgba(214, 48, 49, 0.12); }
+
+  .callout.info {
+    background: var(--navy-soft);
+    border: 1px solid rgba(0, 55, 99, 0.15);
+    color: #1a3a5a;
+  }
+
+  .callout.info .callout-icon { background: rgba(0, 55, 99, 0.1); }
+
+  .callout.success {
+    background: var(--lime-bg);
+    border: 1px solid rgba(164, 204, 39, 0.35);
+    color: #3a4a10;
+  }
+
+  .callout.success .callout-icon { background: rgba(164, 204, 39, 0.2); }
+
+  .callout-content { flex: 1; }
+  .callout-content strong { display: block; margin-bottom: 2px; }
+
+  /* ── SmartScreen Gallery ── */
+  .ss-steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .ss-step {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .ss-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: var(--white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+
+  .ss-step h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--near-black);
+    margin-bottom: 6px;
+  }
+
+  .ss-step p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .ss-step .mock {
+    margin: 12px auto 0;
+    padding: 10px 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--navy);
+    display: inline-block;
+  }
+
+  /* ── Env Var Table ── */
+  .env-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  .env-table thead {
+    background: var(--surface);
+  }
+
+  .env-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    border-bottom: 2px solid var(--border);
+    font-weight: 500;
+  }
+
+  .env-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: top;
+  }
+
+  .env-table td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--navy);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .env-table td:nth-child(2) {
+    color: var(--text-secondary);
+  }
+
+  .env-table td:last-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .required-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: rgba(214, 48, 49, 0.08);
+    color: var(--red);
+    border: 1px solid rgba(214, 48, 49, 0.15);
+  }
+
+  .optional-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: rgba(0, 55, 99, 0.06);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  /* ── PIN Card ── */
+  .pin-card {
+    background: linear-gradient(135deg, var(--navy) 0%, #004d8a 100%);
+    border-radius: var(--radius);
+    padding: 32px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+
+  .pin-card::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: rgba(164, 204, 39, 0.08);
+  }
+
+  .pin-card::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: -20px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255, 191, 59, 0.06);
+  }
+
+  .pin-card-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .pin-display {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .pin-digit {
+    width: 48px;
+    height: 56px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--lime);
+    backdrop-filter: blur(8px);
+  }
+
+  .pin-info h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .pin-info p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.55;
+  }
+
+  .pin-info kbd {
+    display: inline-block;
+    padding: 1px 7px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+  }
+
+  /* ── Checklist ── */
+  .checklist {
+    list-style: none;
+    margin: 20px 0;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .check-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 48px 0;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 32px 0;
+    border-top: 1px solid var(--border-light);
+    margin-top: 40px;
+  }
+
+  footer p {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  footer p span { color: var(--navy); font-weight: 500; }
+
+  /* ── Print ── */
+  @media print {
+    .banner { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .code-bar-copy { display: none; }
+    .step { page-break-inside: avoid; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .banner-inner, .page { padding-left: 20px; padding-right: 20px; }
+    .step-body { padding-left: 0; }
+    .ss-steps { grid-template-columns: 1fr; }
+    .pin-card-inner { flex-direction: column; align-items: flex-start; }
+    .toc { grid-template-columns: 1fr; }
+    .env-table { font-size: 12px; }
+    .env-table td, .env-table th { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════ BANNER ════════ -->
+<div class="banner">
+  <div class="banner-inner">
+    <div class="banner-eyebrow">
+      <span class="dot"></span>
+      Quick Setup Guide
+    </div>
+    <h1>Kiosk Deployment<br>& Setup</h1>
+    <p>Everything you need to get the Tech901 AI-Assisted ID Photo kiosk running on a Windows machine&mdash;from download to first photo.</p>
+    <div class="banner-chips">
+      <span class="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+        Windows 10/11 x64
+      </span>
+      <span class="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v6l3-3M12 8l-3-3"/><rect x="4" y="10" width="16" height="10" rx="2"/></svg>
+        Self-Contained App
+      </span>
+      <span class="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Signed Executable
+      </span>
+      <span class="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+        Azure Services Optional
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ════════ TABLE OF CONTENTS ════════ -->
+  <nav class="toc">
+    <a href="#step-1"><span class="toc-num">1</span> Prerequisites</a>
+    <a href="#step-2"><span class="toc-num">2</span> Download &amp; Extract</a>
+    <a href="#step-3"><span class="toc-num">3</span> Trust the App</a>
+    <a href="#step-4"><span class="toc-num">4</span> Azure Config</a>
+    <a href="#step-5"><span class="toc-num">5</span> Run the Kiosk</a>
+    <a href="#step-6"><span class="toc-num">6</span> Admin Access</a>
+    <a href="#step-7"><span class="toc-num">7</span> Verify &amp; Troubleshoot</a>
+  </nav>
+
+  <!-- ════════ STEP 1: PREREQUISITES ════════ -->
+  <div class="step" id="step-1">
+    <div class="step-header">
+      <div class="step-number">1</div>
+      <h2>Prerequisites <small>Before you begin</small></h2>
+    </div>
+    <div class="step-body">
+      <p>The kiosk app is a <strong>self-contained</strong> Windows application&mdash;no .NET runtime installation is needed. Just make sure you have:</p>
+      <ul class="checklist">
+        <li>
+          <span class="check-box"></span>
+          <span><strong>Windows 10 or 11</strong> (x64). The app targets win-x64 only.</span>
+        </li>
+        <li>
+          <span class="check-box"></span>
+          <span><strong>A webcam</strong> connected to the machine (USB or built-in).</span>
+        </li>
+        <li>
+          <span class="check-box"></span>
+          <span><strong>Administrator access</strong> to the kiosk machine (needed to set environment variables and trust the certificate).</span>
+        </li>
+        <li>
+          <span class="check-box"></span>
+          <span><strong>Azure credentials</strong> (optional). You&rsquo;ll need the Speech and Face API keys if you want voice interaction and intelligent face-based photo cropping. The app works without them&mdash;see Step 4.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════ STEP 2: DOWNLOAD ════════ -->
+  <div class="step" id="step-2">
+    <div class="step-header">
+      <div class="step-number">2</div>
+      <h2>Download &amp; Extract <small>Get the publish package</small></h2>
+    </div>
+    <div class="step-body">
+      <p>Download the latest release ZIP from the repository&rsquo;s <strong>Releases</strong> page (or from the shared link you were given). The file will be named:</p>
+
+      <div class="code-block">
+        <div class="code-bar">
+          <span class="code-bar-label">filename</span>
+        </div>
+        <div class="code-content">
+<pre>Tech901-IdPhoto-<span class="var">{version}</span>-win-x64.zip</pre>
+        </div>
+      </div>
+
+      <p>Extract the ZIP to a location on the kiosk machine. We recommend:</p>
+
+      <div class="code-block">
+        <div class="code-bar">
+          <span class="code-bar-label">Recommended path</span>
+        </div>
+        <div class="code-content">
+<pre>C:\Tech901\IdPhoto\</pre>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">&#8505;</div>
+        <div class="callout-content">
+          <strong>Automated install option</strong>
+          If you have the repo cloned, you can use the installer script instead of extracting manually. Run the following in an <strong>elevated</strong> (Administrator) PowerShell terminal:
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-bar">
+          <span class="code-bar-label">PowerShell (Administrator)</span>
+          <button class="code-bar-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-content">
+<pre><span class="comment"># Extracts ZIP, creates desktop shortcut, optionally sets up auto-start</span>
+<span class="cmd">.\infra\Install-Kiosk.ps1</span> <span class="flag">-SourcePath</span> <span class="string">.\Tech901-IdPhoto-1.0.0-win-x64.zip</span> <span class="flag">-AutoStart</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STEP 3: TRUST ════════ -->
+  <div class="step" id="step-3">
+    <div class="step-header">
+      <div class="step-number">3</div>
+      <h2>Trust the Application <small>SmartScreen &amp; certificate</small></h2>
+    </div>
+    <div class="step-body">
+      <div class="callout warning">
+        <div class="callout-icon">&#9888;</div>
+        <div class="callout-content">
+          <strong>This app is signed with a development certificate</strong>
+          The executable is Authenticode-signed, but the certificate is <strong>not</strong> issued by a public Certificate Authority. Windows SmartScreen will flag it as an unrecognized app on first launch. This is expected and safe&mdash;the cert is an internal Tech901 development signing certificate.
+        </div>
+      </div>
+
+      <p>When you first launch <strong>Tech901.IdPhoto.App.exe</strong>, Windows will show a SmartScreen warning. Follow these steps to proceed:</p>
+
+      <div class="ss-steps">
+        <div class="ss-step">
+          <div class="ss-step-num">1</div>
+          <h4>SmartScreen Appears</h4>
+          <p>You&rsquo;ll see &ldquo;Windows protected your PC&rdquo; with the app marked as unrecognized.</p>
+          <div class="mock">&#x1f6e1; Windows protected your PC</div>
+        </div>
+        <div class="ss-step">
+          <div class="ss-step-num">2</div>
+          <h4>Click &ldquo;More info&rdquo;</h4>
+          <p>Click the <strong>&ldquo;More info&rdquo;</strong> link below the warning message to reveal additional options.</p>
+          <div class="mock">More info &rarr;</div>
+        </div>
+        <div class="ss-step">
+          <div class="ss-step-num">3</div>
+          <h4>Click &ldquo;Run anyway&rdquo;</h4>
+          <p>You&rsquo;ll see the publisher listed as <strong>&ldquo;Tech901 IdPhoto Dev&rdquo;</strong>. Click <strong>&ldquo;Run anyway&rdquo;</strong>.</p>
+          <div class="mock">Run anyway</div>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">&#128273;</div>
+        <div class="callout-content">
+          <strong>Suppress SmartScreen permanently (optional)</strong>
+          To prevent the SmartScreen warning on every machine, you can trust the signing certificate by importing it into the Trusted Root CA store. This requires Admin privileges and only needs to be done once per machine. Ask the person who shared the package for the <code>Tech901-IdPhoto-Dev.pfx</code> file if needed.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STEP 4: AZURE CONFIG ════════ -->
+  <div class="step" id="step-4">
+    <div class="step-header">
+      <div class="step-number">4</div>
+      <h2>Configure Azure Services <small>Environment variables</small></h2>
+    </div>
+    <div class="step-body">
+      <p>The kiosk uses two Azure Cognitive Services. <strong>Both are optional</strong>&mdash;the app runs fine without them, but with reduced functionality:</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0;">
+        <div class="callout success" style="margin: 0; flex-direction: column;">
+          <strong style="display: flex; align-items: center; gap: 6px;">&#127908; Speech Service</strong>
+          <span style="font-size: 13px;">Voice prompts &amp; spoken name capture. Without it, participants type their name manually.</span>
+        </div>
+        <div class="callout success" style="margin: 0; flex-direction: column;">
+          <strong style="display: flex; align-items: center; gap: 6px;">&#128247; Face API</strong>
+          <span style="font-size: 13px;">Intelligent face-centered photo cropping. Without it, photos are center-cropped instead.</span>
+        </div>
+      </div>
+
+      <p>Azure credentials are provided as <strong>machine-level environment variables</strong>. Set them in an <strong>elevated</strong> PowerShell terminal:</p>
+
+      <div class="code-block">
+        <div class="code-bar">
+          <span class="code-bar-label">PowerShell (Administrator)</span>
+          <button class="code-bar-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-content">
+<pre><span class="comment"># Speech Service</span>
+[Environment]::SetEnvironmentVariable(<span class="string">"Azure__Speech__Key"</span>,    <span class="string">"&lt;your-speech-key&gt;"</span>,      <span class="string">"Machine"</span>)
+[Environment]::SetEnvironmentVariable(<span class="string">"Azure__Speech__Region"</span>, <span class="string">"eastus"</span>,                <span class="string">"Machine"</span>)
+
+<span class="comment"># Face API</span>
+[Environment]::SetEnvironmentVariable(<span class="string">"Azure__Face__Key"</span>,      <span class="string">"&lt;your-face-key&gt;"</span>,        <span class="string">"Machine"</span>)
+[Environment]::SetEnvironmentVariable(<span class="string">"Azure__Face__Endpoint"</span>, <span class="string">"&lt;your-face-endpoint&gt;"</span>,   <span class="string">"Machine"</span>)</pre>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-icon">&#8635;</div>
+        <div class="callout-content">
+          <strong>Restart required</strong>
+          After setting environment variables, you must restart the kiosk app (or log off and back on) for the new values to take effect.
+        </div>
+      </div>
+
+      <p><strong>Full environment variable reference:</strong></p>
+
+      <table class="env-table">
+        <thead>
+          <tr>
+            <th>Variable Name</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Azure__Speech__Key</td>
+            <td>Azure Speech Service subscription key</td>
+            <td><span class="optional-badge">Optional</span></td>
+          </tr>
+          <tr>
+            <td>Azure__Speech__Region</td>
+            <td>Azure region (e.g. <code>eastus</code>)</td>
+            <td><span class="optional-badge">Optional</span></td>
+          </tr>
+          <tr>
+            <td>Azure__Face__Key</td>
+            <td>Azure Face API subscription key</td>
+            <td><span class="optional-badge">Optional</span></td>
+          </tr>
+          <tr>
+            <td>Azure__Face__Endpoint</td>
+            <td>Face API endpoint URL</td>
+            <td><span class="optional-badge">Optional</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout info">
+        <div class="callout-icon">&#128161;</div>
+        <div class="callout-content">
+          <strong>Automated config option</strong>
+          If you have the repo cloned, you can use the installer script with the <code>-ConfigureAzure</code> flag, which will prompt you for each key interactively:<br>
+          <code style="font-family: 'DM Mono', monospace; font-size: 12px; color: var(--navy);">.\infra\Install-Kiosk.ps1 -SourcePath .\*.zip -ConfigureAzure</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STEP 5: RUN ════════ -->
+  <div class="step" id="step-5">
+    <div class="step-header">
+      <div class="step-number">5</div>
+      <h2>Run the Kiosk <small>Launch the application</small></h2>
+    </div>
+    <div class="step-body">
+      <p>Double-click <strong>Tech901.IdPhoto.App.exe</strong> from the install directory (or the desktop shortcut if you used the installer). The kiosk will launch in full-screen mode and begin the idle state, waiting to detect a participant.</p>
+
+      <div class="callout success">
+        <div class="callout-icon">&#10003;</div>
+        <div class="callout-content">
+          <strong>What to expect on first launch</strong>
+          The app will log which Azure services are active. If keys aren't configured, you'll see log messages like &ldquo;Azure Speech not configured &mdash; using NullSpeechService&rdquo;. This is normal&mdash;the kiosk is running in offline mode with keyboard input and center-crop.
+        </div>
+      </div>
+
+      <p>The kiosk workflow is fully automatic for participants:</p>
+      <p style="font-family: 'DM Mono', monospace; font-size: 12px; color: var(--navy); background: var(--surface); padding: 14px 18px; border-radius: 8px; border: 1px solid var(--border-light); text-align: center; letter-spacing: 0.02em;">
+        Idle &rarr; Name Capture &rarr; Roster Match &rarr; Positioning &rarr; Capture &rarr; Review &rarr; Processing &rarr; Complete
+      </p>
+    </div>
+  </div>
+
+  <!-- ════════ STEP 6: ADMIN ════════ -->
+  <div class="step" id="step-6">
+    <div class="step-header">
+      <div class="step-number">6</div>
+      <h2>Admin Access <small>Settings &amp; roster management</small></h2>
+    </div>
+    <div class="step-body">
+      <p>The kiosk has a protected admin panel for managing the roster, adjusting settings, and reviewing captured photos. Access it using the PIN below.</p>
+
+      <div class="pin-card">
+        <div class="pin-card-inner">
+          <div class="pin-display">
+            <div class="pin-digit">9</div>
+            <div class="pin-digit">0</div>
+            <div class="pin-digit">1</div>
+            <div class="pin-digit">9</div>
+          </div>
+          <div class="pin-info">
+            <h4>Admin PIN</h4>
+            <p>
+              Enter this PIN when prompted. Trigger the admin panel with:<br>
+              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd> &nbsp;or click the <strong>gear icon</strong> in the UI.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout danger">
+        <div class="callout-icon">&#128274;</div>
+        <div class="callout-content">
+          <strong>Keep this PIN confidential</strong>
+          Share this PIN only with staff who need to manage the kiosk. Participants should not have access to the admin panel.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ STEP 7: VERIFY ════════ -->
+  <div class="step" id="step-7">
+    <div class="step-header">
+      <div class="step-number">7</div>
+      <h2>Verify &amp; Troubleshoot <small>Confirm everything works</small></h2>
+    </div>
+    <div class="step-body">
+      <p>If you have the repo cloned on the kiosk machine, you can run the diagnostic script to verify Azure environment variables are set correctly:</p>
+
+      <div class="code-block">
+        <div class="code-bar">
+          <span class="code-bar-label">PowerShell</span>
+          <button class="code-bar-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-content">
+<pre><span class="cmd">.\infra\Test-AzureConfig.ps1</span></pre>
+        </div>
+      </div>
+
+      <p>Expected output when everything is configured:</p>
+
+      <div class="code-block">
+        <div class="code-bar">
+          <span class="code-bar-label">Output</span>
+        </div>
+        <div class="code-content">
+<pre><span class="cmd">[OK]</span>   Azure__Speech__Key    = ab12****  (Machine)
+<span class="cmd">[OK]</span>   Azure__Speech__Region = east****  (Machine)
+<span class="cmd">[OK]</span>   Azure__Face__Key      = cd34****  (Machine)
+<span class="cmd">[OK]</span>   Azure__Face__Endpoint = http****  (Machine)
+
+All Azure environment variables are set.</pre>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <p><strong>Common issues:</strong></p>
+
+      <div class="callout warning" style="margin-bottom: 12px;">
+        <div class="callout-icon">?</div>
+        <div class="callout-content">
+          <strong>Variables show as [MISSING]</strong>
+          You either skipped Step 4, the PowerShell session wasn't elevated (Administrator), or you haven't restarted after setting them. Environment variables set at the &ldquo;Machine&rdquo; scope require a new process to pick them up.
+        </div>
+      </div>
+
+      <div class="callout warning" style="margin-bottom: 12px;">
+        <div class="callout-icon">?</div>
+        <div class="callout-content">
+          <strong>Camera not detected</strong>
+          Make sure the webcam is plugged in and recognized by Windows (check Device Manager). The kiosk uses OpenCvSharp4 and will select the default camera device.
+        </div>
+      </div>
+
+      <div class="callout warning" style="margin-bottom: 12px;">
+        <div class="callout-icon">?</div>
+        <div class="callout-content">
+          <strong>App still shows SmartScreen warning after trusting</strong>
+          The certificate must be added to the <strong>Local Machine</strong> Trusted Root CA store, not the Current User store. Use an elevated PowerShell to import it, or ask the package provider for the trust script.
+        </div>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">&#128196;</div>
+        <div class="callout-content">
+          <strong>Application logs</strong>
+          Logs are written to the <code>logs/</code> directory inside the install folder. Look for <code>idphoto-{date}.log</code> files for detailed diagnostic information.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p><span>Tech901</span> &mdash; AI-Assisted ID Photo Kiosk &mdash; Setup Guide</p>
+  </footer>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+</script>
+</body>
+</html>
