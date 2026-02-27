@@ -48,15 +48,30 @@ TestResult.xml
 .idea/
 *.swp
 *~
+.vscode/
 
 ## Certificates & publishing
 certs/
 *.pfx
 publish/
 
+## Local config overrides
+appsettings.*.local.json
+appsettings.Local.json
+
+## Screenshots (stray captures)
+Screenshot *.png
+
+## Coverage reports
+[Cc]overage*/
+*.coverage
+*.coveragexml
+*.opencover.xml
+
 ## OS
 Thumbs.db
 ehthumbs.db
+ehthumbs_vista.db
 Desktop.ini
 .DS_Store
 *.zip

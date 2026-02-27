@@ -50,6 +50,16 @@ Each kiosk state has a corresponding XAML view:
 
 A Visual Studio publish profile is at `Properties/PublishProfiles/FolderProfile.pubxml`. Release builds are self-contained win-x64 with ReadyToRun pre-compilation. Use `infra/publish.ps1` for the full pipeline (build, test, sign, package).
 
+## Learning Objectives
+
+- **Generic Host in WPF (Non-ASP.NET Host)** -- `App.xaml.cs` builds a `Microsoft.Extensions.Hosting.Host` to get the same DI, configuration, and logging infrastructure that ASP.NET Core provides, but inside a desktop WPF application. This demonstrates that Generic Host is not web-specific -- it works anywhere you need structured startup, DI, and graceful shutdown.
+
+- **ViewModel-First Navigation with Implicit DataTemplates** -- `MainWindow.xaml` contains a `ContentControl` bound to `KioskFlowViewModel.CurrentViewModel`. WPF's implicit `DataTemplate` mechanism (templates with `DataType` but no `x:Key`) automatically selects the correct View for the current ViewModel type. No navigation service or manual view instantiation is needed.
+
+- **IDispatcher Bridge to WPF Dispatcher** -- `Services/WpfDispatcher.cs` implements the Core project's `IDispatcher` interface by delegating to `Application.Current.Dispatcher.InvokeAsync()`. This thin bridge allows ViewModels to marshal work to the UI thread without taking a dependency on WPF assemblies.
+
+- **DI Container Wiring with Resolution-Time Factories** -- In `ServiceCollectionExtensions.AddInfrastructure()`, service registrations use factory lambdas that read configuration at resolution time (when the service is first requested), not at registration time (when `ConfigureServices` runs). This ensures all configuration sources (appsettings.json, User Secrets, environment variables) are fully loaded before the factory inspects them.
+
 ## Dependencies
 
 - Microsoft.Extensions.Hosting

@@ -34,6 +34,18 @@ Domain layer — models, service interfaces, enums, and platform-agnostic servic
 - **`KioskState`** — State machine values (Idle, Detected, NameCapture, etc.)
 - **`MatchConfidence`** — High, Medium, Low confidence for roster matches
 
+## Learning Objectives
+
+This project demonstrates several foundational software design patterns:
+
+- **Interface Segregation Principle (ISP)** -- Each service interface (`ICameraService`, `ISpeechService`, `IFaceDetectionService`, `IRosterService`, `IImageProcessingService`) defines a focused contract with only the methods its consumers need. Compare the narrow `IDispatcher` (single `InvokeAsync` method in `Interfaces/IDispatcher.cs`) with the broader `IRosterService` to see ISP in practice.
+
+- **Null Object Pattern** -- The interfaces in this project define contracts that are implemented by both real services and no-op "null" fallbacks (e.g., `NullSpeechService`, `NullFaceDetectionService` in Infrastructure). Callers never check for null; they always get a valid implementation. The DI container selects the appropriate implementation at resolution time.
+
+- **C# Record Types for Immutable Domain Models** -- Models like `Student`, `RosterMatch`, `FaceDetectionResult`, and `CropSettings` are declared as `record` types (see `Models/Student.cs`). Records provide value equality, immutability, and concise syntax for data-carrying types that represent domain concepts rather than mutable entities.
+
+- **Fuzzy String Matching with FuzzySharp** -- `RosterService` (in `Services/RosterService.cs`) uses the FuzzySharp library to match spoken or typed participant names against the imported roster. This handles misspellings and partial matches, returning ranked `RosterMatch` results with a `MatchConfidence` level.
+
 ## Dependencies
 
 - CsvHelper

@@ -64,9 +64,16 @@ App (WPF) --> ViewModels --> Core
 
 ```
 Idle --> Detected --> NameCapture --> RosterMatch --> Positioning --> Capture --> Review --> Processing --> Complete
+  \        \            \               \              \              \          \           \              |
+   \--------\------------\---------------\--------------\--------------\----------\-----------\-----> Error
+                                                                                                      |
+                                                                                                      v
+                                                                                                    Idle
 ```
 
 Each state has a dedicated ViewModel and View. `KioskFlowViewModel` orchestrates transitions.
+
+> **Note:** The `Detected` state is defined in the `KioskState` enum but the current flow transitions directly from `Idle` to `NameCapture`. Any state can transition to `Error` on unhandled exceptions; `Error` resets back to `Idle`.
 
 ## Build & Test
 
@@ -108,6 +115,36 @@ PIN `9019`, triggered via **Ctrl+Shift+A** or the gear icon.
 | Near-Black | `#141414` |
 | White      | `#FFFFFF` |
 | Gold       | `#FFBF3B` |
+
+## Learning Guide: AI-102 Exam Objectives
+
+This project covers several domains from the [AI-102: Designing and Implementing a Microsoft Azure AI Solution](https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-engineer/) exam. The table below maps exam domains to concrete code in this repository.
+
+| AI-102 Domain | Concept | Code File(s) |
+|---|---|---|
+| Plan and manage an Azure AI solution | Resource provisioning via Bicep | `infra/main.bicep`, `infra/deploy.ps1` |
+| Plan and manage an Azure AI solution | Key/endpoint configuration & fallback | `ServiceCollectionExtensions.cs`, `appsettings.json` |
+| Implement computer vision solutions | Face API detection & landmarks | `AzureFaceService.cs`, `IFaceDetectionService.cs` |
+| Implement computer vision solutions | Face-aware image cropping | `ImageProcessingService.cs`, `CropSettings.cs` |
+| Implement natural language processing | Speech-to-text (voice name capture) | `AzureSpeechService.cs`, `ISpeechService.cs` |
+| Implement natural language processing | Text-to-speech (kiosk prompts) | `AzureSpeechService.cs`, `ISpeechService.cs` |
+| Implement decision support solutions | N/A (not covered in this project) | — |
+| Implement knowledge mining and document intelligence | N/A (not covered in this project) | — |
+| Implement generative AI solutions | N/A (not covered in this project) | — |
+
+## Software Engineering Concepts
+
+Patterns and practices demonstrated in this codebase, with file references:
+
+- **Dependency Injection (Generic Host)** — `App.xaml.cs`, `ServiceCollectionExtensions.cs`
+- **Null Object Pattern** — `NullSpeechService.cs`, `NullFaceDetectionService.cs` (graceful degradation when Azure keys are absent)
+- **State Machine** — `KioskFlowViewModel.cs` (event-driven transitions between kiosk states)
+- **Options Pattern** — `AzureSpeechOptions.cs`, `AzureFaceOptions.cs` (strongly-typed configuration binding)
+- **Polly Resilience** — `AzureFaceService.cs` (retry and circuit-breaker for Azure API calls)
+- **MVVM with Source Generators** — ViewModels project using CommunityToolkit.Mvvm `[ObservableProperty]` and `[RelayCommand]`
+- **Thread Safety** — `RosterService.cs` (`lock`), `AzureFaceService.cs` (`SemaphoreSlim`)
+- **ViewModel-First Navigation** — `ContentControl` + implicit `DataTemplate` in `MainWindow.xaml`
+- **Infrastructure as Code** — `infra/main.bicep` with parameterized Bicep templates
 
 ## License
 
