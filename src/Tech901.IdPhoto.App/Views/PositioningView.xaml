@@ -1,0 +1,92 @@
+<UserControl x:Class="Tech901.IdPhoto.App.Views.PositioningView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:Tech901.IdPhoto.App.Converters">
+  <UserControl.Resources>
+    <converters:ByteArrayToImageConverter x:Key="ByteArrayToImage" />
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+  </UserControl.Resources>
+
+  <Grid>
+    <!-- Camera preview + face overlay in a Viewbox so pixel-coordinate face rect aligns with image -->
+    <Viewbox Stretch="Uniform" RenderTransformOrigin="0.5,0.5">
+      <Viewbox.RenderTransform>
+        <ScaleTransform ScaleX="-1" />
+      </Viewbox.RenderTransform>
+      <Grid Width="1920" Height="1080">
+        <Image Source="{Binding CurrentFrame, Converter={StaticResource ByteArrayToImage}}"
+               Stretch="Fill"
+               RenderOptions.BitmapScalingMode="HighQuality" />
+
+        <!-- Face rectangle overlay — animated tracking box -->
+        <Canvas>
+          <Border Canvas.Left="{Binding FaceRectX}"
+                  Canvas.Top="{Binding FaceRectY}"
+                  Width="{Binding FaceRectWidth}"
+                  Height="{Binding FaceRectHeight}"
+                  BorderBrush="{StaticResource LimeGreenBrush}"
+                  BorderThickness="2"
+                  CornerRadius="4"
+                  Visibility="{Binding HasFaceDetection, Converter={StaticResource BoolToVisibility}}">
+            <Border.Effect>
+              <DropShadowEffect Color="#A4CC27" BlurRadius="8" ShadowDepth="0" Opacity="0.5" />
+            </Border.Effect>
+          </Border>
+          <!-- Corner brackets at face rect corners -->
+        </Canvas>
+      </Grid>
+    </Viewbox>
+
+    <!-- Alignment guide — elegant oval with corner marks -->
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+      <Ellipse Width="220" Height="290"
+               Stroke="{StaticResource WhiteBrush}"
+               StrokeThickness="1.5"
+               StrokeDashArray="6 4"
+               Opacity="0.2" />
+      <!-- Crosshair center dot -->
+      <Ellipse Width="8" Height="8"
+               Fill="{StaticResource LimeGreenBrush}"
+               Opacity="0.5"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center">
+        <Ellipse.Effect>
+          <DropShadowEffect Color="#A4CC27" BlurRadius="6" ShadowDepth="0" Opacity="0.6" />
+        </Ellipse.Effect>
+      </Ellipse>
+    </Grid>
+
+    <!-- Vignette around camera -->
+    <Border IsHitTestVisible="False">
+      <Border.Background>
+        <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.7" RadiusY="0.7">
+          <GradientStop Color="#00000000" Offset="0.5" />
+          <GradientStop Color="#80000000" Offset="1.0" />
+        </RadialGradientBrush>
+      </Border.Background>
+    </Border>
+
+    <!-- Bottom guidance bar — frosted glass -->
+    <Border VerticalAlignment="Bottom"
+            Margin="0,0,0,0">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+          <GradientStop Color="#00000000" Offset="0" />
+          <GradientStop Color="#CC0A0A0E" Offset="0.3" />
+          <GradientStop Color="#EE0A0A0E" Offset="1" />
+        </LinearGradientBrush>
+      </Border.Background>
+      <StackPanel HorizontalAlignment="Center" Margin="32,60,32,32">
+        <TextBlock Text="{Binding GuidanceMessage}"
+                   Style="{StaticResource GuidanceTextStyle}"
+                   Margin="0,0,0,20" />
+
+        <Button Content="Take Photo"
+                Style="{StaticResource PrimaryButtonStyle}"
+                Command="{Binding CaptureCommand}"
+                HorizontalAlignment="Center"
+                IsEnabled="{Binding ReadyToCapture}" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

@@ -1,0 +1,100 @@
+<UserControl x:Class="Tech901.IdPhoto.App.Views.CompleteView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid>
+    <Border Background="{StaticResource OverlayBrush}" />
+
+    <!-- Celebration burst — radial lime glow -->
+    <Ellipse Width="600" Height="600"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center"
+             IsHitTestVisible="False"
+             Opacity="0">
+      <Ellipse.Fill>
+        <RadialGradientBrush>
+          <GradientStop Color="#25A4CC27" Offset="0" />
+          <GradientStop Color="#00A4CC27" Offset="1" />
+        </RadialGradientBrush>
+      </Ellipse.Fill>
+      <Ellipse.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+          <BeginStoryboard>
+            <Storyboard>
+              <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                               From="0" To="1" Duration="0:0:0.8"
+                               BeginTime="0:0:0.2">
+                <DoubleAnimation.EasingFunction>
+                  <CubicEase EasingMode="EaseOut" />
+                </DoubleAnimation.EasingFunction>
+              </DoubleAnimation>
+            </Storyboard>
+          </BeginStoryboard>
+        </EventTrigger>
+      </Ellipse.Triggers>
+    </Ellipse>
+
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0">
+      <StackPanel.RenderTransform>
+        <TranslateTransform />
+      </StackPanel.RenderTransform>
+      <StackPanel.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+          <BeginStoryboard>
+            <Storyboard>
+              <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                               From="0" To="1" Duration="0:0:0.6"
+                               BeginTime="0:0:0.15">
+                <DoubleAnimation.EasingFunction>
+                  <CubicEase EasingMode="EaseOut" />
+                </DoubleAnimation.EasingFunction>
+              </DoubleAnimation>
+              <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                               From="30" To="0" Duration="0:0:0.7"
+                               BeginTime="0:0:0.1">
+                <DoubleAnimation.EasingFunction>
+                  <CubicEase EasingMode="EaseOut" />
+                </DoubleAnimation.EasingFunction>
+              </DoubleAnimation>
+            </Storyboard>
+          </BeginStoryboard>
+        </EventTrigger>
+      </StackPanel.Triggers>
+
+      <!-- Checkmark circle with glow -->
+      <Grid Width="130" Height="130" HorizontalAlignment="Center" Margin="0,0,0,36">
+        <Ellipse Fill="{StaticResource LimeGreenBrush}">
+          <Ellipse.Effect>
+            <DropShadowEffect Color="#A4CC27" BlurRadius="50" ShadowDepth="0" Opacity="0.5" />
+          </Ellipse.Effect>
+        </Ellipse>
+        <TextBlock Text="&#x2714;"
+                   FontSize="60"
+                   FontWeight="Bold"
+                   Foreground="{StaticResource NearBlackBrush}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Margin="0,-2,0,0" />
+      </Grid>
+
+      <!-- Success message -->
+      <TextBlock Style="{StaticResource DisplayTextStyle}" Margin="0,0,0,12">
+        <Run Text="You're all set, " />
+        <Run Text="{Binding StudentName, Mode=OneWay}" Foreground="{StaticResource LimeGreenBrush}" />
+        <Run Text="!" />
+      </TextBlock>
+
+      <!-- Accent line -->
+      <Border Width="48" Height="3" CornerRadius="2"
+              Background="{StaticResource LimeGlowBrush}"
+              HorizontalAlignment="Center"
+              Margin="0,8,0,20">
+        <Border.Effect>
+          <DropShadowEffect Color="#A4CC27" BlurRadius="10" ShadowDepth="0" Opacity="0.4" />
+        </Border.Effect>
+      </Border>
+
+      <TextBlock Text="Your ID photo has been saved."
+                 Style="{StaticResource SubheadingTextStyle}" />
+    </StackPanel>
+  </Grid>
+</UserControl>

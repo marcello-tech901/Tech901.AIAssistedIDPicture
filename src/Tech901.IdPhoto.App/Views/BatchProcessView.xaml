@@ -1,0 +1,142 @@
+<UserControl x:Class="Tech901.IdPhoto.App.Views.BatchProcessView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:Tech901.IdPhoto.App.Converters">
+  <UserControl.Resources>
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+  </UserControl.Resources>
+
+  <Grid Background="{StaticResource BackgroundGradientBrush}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <!-- Header -->
+    <Border Grid.Row="0" Padding="32,18">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0.5">
+          <GradientStop Color="#002244" Offset="0" />
+          <GradientStop Color="#003763" Offset="0.6" />
+          <GradientStop Color="#002A50" Offset="1" />
+        </LinearGradientBrush>
+      </Border.Background>
+      <Border.BorderBrush>
+        <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+          <GradientStop Color="#20FFFFFF" Offset="0" />
+          <GradientStop Color="#00FFFFFF" Offset="1" />
+        </LinearGradientBrush>
+      </Border.BorderBrush>
+      <Border.BorderThickness>0,0,0,1</Border.BorderThickness>
+      <DockPanel>
+        <TextBlock Text="Batch Processing"
+                   Style="{StaticResource HeadingTextStyle}"
+                   TextAlignment="Left"
+                   FontSize="26"
+                   DockPanel.Dock="Left" />
+        <Button Content="Back"
+                Style="{StaticResource GhostButtonStyle}"
+                Foreground="{StaticResource WhiteBrush}"
+                Command="{Binding BackCommand}"
+                DockPanel.Dock="Right"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center" />
+      </DockPanel>
+    </Border>
+
+    <!-- Content in glass card -->
+    <Border Grid.Row="1"
+            Style="{StaticResource GlassCardStyle}"
+            MaxWidth="720"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Center"
+            Margin="32,24,32,32">
+
+      <StackPanel>
+        <!-- Input folder -->
+        <TextBlock Text="INPUT FOLDER"
+                   Style="{StaticResource LabelTextStyle}"
+                   Margin="0,0,0,8" />
+        <DockPanel Margin="0,0,0,20">
+          <Button Content="Browse"
+                  Style="{StaticResource GhostButtonStyle}"
+                  Command="{Binding SelectInputFolderCommand}"
+                  DockPanel.Dock="Right"
+                  Margin="10,0,0,0"
+                  VerticalAlignment="Center" />
+          <TextBox Text="{Binding InputFolder, UpdateSourceTrigger=PropertyChanged}"
+                   Style="{StaticResource KioskTextBoxStyle}"
+                   FontSize="14"
+                   FontFamily="{StaticResource MonoFont}"
+                   Padding="14,10" />
+        </DockPanel>
+
+        <!-- Output folder -->
+        <TextBlock Text="OUTPUT FOLDER"
+                   Style="{StaticResource LabelTextStyle}"
+                   Margin="0,0,0,8" />
+        <TextBox Text="{Binding OutputFolder, UpdateSourceTrigger=PropertyChanged}"
+                 Style="{StaticResource KioskTextBoxStyle}"
+                 FontSize="14"
+                 FontFamily="{StaticResource MonoFont}"
+                 Padding="14,10"
+                 Margin="0,0,0,28" />
+
+        <!-- Progress bar -->
+        <StackPanel Visibility="{Binding IsProcessing, Converter={StaticResource BoolToVisibility}}"
+                    Margin="0,0,0,20">
+          <ProgressBar Style="{StaticResource KioskProgressBarStyle}"
+                       Value="{Binding ProcessedFiles}"
+                       Maximum="{Binding TotalFiles}"
+                       Margin="0,0,0,10" />
+          <TextBlock Style="{StaticResource BodyTextStyle}" FontSize="14">
+            <Run Text="{Binding ProcessedFiles, Mode=OneWay}" Foreground="{StaticResource LimeGreenBrush}" />
+            <Run Text=" / " Foreground="{StaticResource SecondaryTextBrush}" />
+            <Run Text="{Binding TotalFiles, Mode=OneWay}" Foreground="{StaticResource SecondaryTextBrush}" />
+            <Run Text=" files processed" Foreground="{StaticResource SecondaryTextBrush}" />
+          </TextBlock>
+        </StackPanel>
+
+        <!-- Actions -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,28">
+          <Button Content="Start Processing"
+                  Style="{StaticResource PrimaryButtonStyle}"
+                  Command="{Binding ProcessCommand}"
+                  Margin="0,0,16,0" />
+          <Button Content="Cancel"
+                  Style="{StaticResource WarningButtonStyle}"
+                  Command="{Binding CancelCommand}"
+                  Visibility="{Binding IsProcessing, Converter={StaticResource BoolToVisibility}}" />
+        </StackPanel>
+
+        <!-- Results log -->
+        <TextBlock Text="LOG"
+                   Style="{StaticResource LabelTextStyle}"
+                   Margin="0,0,0,8" />
+        <Border Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderSubtleBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="12"
+                MaxHeight="260">
+          <ListBox ItemsSource="{Binding Results}"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Style="{StaticResource CaptionTextStyle}"
+                           FontFamily="{StaticResource MonoFont}"
+                           Margin="0,2">
+                  <Run Text="{Binding FileName, Mode=OneWay}" />
+                  <Run Text=" — " Foreground="{StaticResource SecondaryTextBrush}" />
+                  <Run Text="{Binding Message, Mode=OneWay}" />
+                </TextBlock>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Border>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

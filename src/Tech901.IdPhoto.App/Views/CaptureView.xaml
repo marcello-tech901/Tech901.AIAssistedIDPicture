@@ -1,0 +1,52 @@
+<UserControl x:Class="Tech901.IdPhoto.App.Views.CaptureView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:Tech901.IdPhoto.App.Converters">
+  <UserControl.Resources>
+    <converters:ByteArrayToImageConverter x:Key="ByteArrayToImage" />
+  </UserControl.Resources>
+
+  <Grid>
+    <!-- Camera preview — mirrored to match positioning screen -->
+    <Viewbox Stretch="Uniform" RenderTransformOrigin="0.5,0.5">
+      <Viewbox.RenderTransform>
+        <ScaleTransform ScaleX="-1" />
+      </Viewbox.RenderTransform>
+      <Grid Width="1920" Height="1080">
+        <Image Source="{Binding CurrentFrame, Converter={StaticResource ByteArrayToImage}}"
+               Stretch="Fill"
+               RenderOptions.BitmapScalingMode="HighQuality" />
+      </Grid>
+    </Viewbox>
+
+    <!-- Dark radial overlay — draws eye to center -->
+    <Border IsHitTestVisible="False">
+      <Border.Background>
+        <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.45" RadiusY="0.45">
+          <GradientStop Color="#00000000" Offset="0" />
+          <GradientStop Color="#80000000" Offset="0.7" />
+          <GradientStop Color="#CC0A0A0E" Offset="1" />
+        </RadialGradientBrush>
+      </Border.Background>
+    </Border>
+
+    <!-- Countdown — cinematic, massive, glowing -->
+    <TextBlock Text="{Binding CountdownValue}"
+               Style="{StaticResource CountdownTextStyle}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center" />
+
+    <!-- Concentric countdown ring -->
+    <Ellipse Width="280" Height="280"
+             Stroke="{StaticResource LimeGreenBrush}"
+             StrokeThickness="3"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center"
+             IsHitTestVisible="False"
+             Opacity="0.3">
+      <Ellipse.Effect>
+        <DropShadowEffect Color="#A4CC27" BlurRadius="20" ShadowDepth="0" Opacity="0.4" />
+      </Ellipse.Effect>
+    </Ellipse>
+  </Grid>
+</UserControl>

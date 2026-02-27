@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <Company>Tech901</Company>
+    <Product>Tech901 AI-Assisted ID Photo</Product>
+    <Copyright>Copyright (c) Tech901 2025-2026</Copyright>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Tech901.IdPhoto.App/Tech901.IdPhoto.App.csproj" />
+    <Project Path="src/Tech901.IdPhoto.Core/Tech901.IdPhoto.Core.csproj" />
+    <Project Path="src/Tech901.IdPhoto.Infrastructure/Tech901.IdPhoto.Infrastructure.csproj" />
+    <Project Path="src/Tech901.IdPhoto.ViewModels/Tech901.IdPhoto.ViewModels.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Tech901.IdPhoto.Core.Tests/Tech901.IdPhoto.Core.Tests.csproj" />
+    <Project Path="tests/Tech901.IdPhoto.Infrastructure.Tests/Tech901.IdPhoto.Infrastructure.Tests.csproj" />
+    <Project Path="tests/Tech901.IdPhoto.ViewModels.Tests/Tech901.IdPhoto.ViewModels.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,259 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TECH901 "ONYX LOUNGE" DESIGN SYSTEM
+       Luxury dark kiosk aesthetic — deep layered blacks, luminous accents,
+       frosted glass panels, cinematic typography.
+       ═══════════════════════════════════════════════════════════════════ -->
+
+  <!-- Brand Palette -->
+  <Color x:Key="NavyColor">#003763</Color>
+  <Color x:Key="NavyDeepColor">#002244</Color>
+  <Color x:Key="LimeGreenColor">#A4CC27</Color>
+  <Color x:Key="LimeDimColor">#7A9A1D</Color>
+  <Color x:Key="NearBlackColor">#0A0A0E</Color>
+  <Color x:Key="PanelColor">#12121A</Color>
+  <Color x:Key="SurfaceColor">#1A1A26</Color>
+  <Color x:Key="SurfaceLightColor">#22222E</Color>
+  <Color x:Key="WhiteColor">#F0F0F5</Color>
+  <Color x:Key="WhiteDimColor">#A0A0B0</Color>
+  <Color x:Key="GoldColor">#FFBF3B</Color>
+  <Color x:Key="GoldDimColor">#CC9930</Color>
+  <Color x:Key="BorderSubtleColor">#2A2A3A</Color>
+  <Color x:Key="ErrorRedColor">#FF4466</Color>
+
+  <!-- Solid Brushes -->
+  <SolidColorBrush x:Key="NavyBrush" Color="{StaticResource NavyColor}" />
+  <SolidColorBrush x:Key="NavyDeepBrush" Color="{StaticResource NavyDeepColor}" />
+  <SolidColorBrush x:Key="LimeGreenBrush" Color="{StaticResource LimeGreenColor}" />
+  <SolidColorBrush x:Key="LimeDimBrush" Color="{StaticResource LimeDimColor}" />
+  <SolidColorBrush x:Key="NearBlackBrush" Color="{StaticResource NearBlackColor}" />
+  <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource PanelColor}" />
+  <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
+  <SolidColorBrush x:Key="SurfaceLightBrush" Color="{StaticResource SurfaceLightColor}" />
+  <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource WhiteColor}" />
+  <SolidColorBrush x:Key="WhiteDimBrush" Color="{StaticResource WhiteDimColor}" />
+  <SolidColorBrush x:Key="GoldBrush" Color="{StaticResource GoldColor}" />
+  <SolidColorBrush x:Key="GoldDimBrush" Color="{StaticResource GoldDimColor}" />
+  <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource BorderSubtleColor}" />
+  <SolidColorBrush x:Key="ErrorRedBrush" Color="{StaticResource ErrorRedColor}" />
+
+  <!-- Semantic Aliases -->
+  <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource NearBlackColor}" />
+  <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource WhiteColor}" />
+  <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource WhiteDimColor}" />
+  <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource LimeGreenColor}" />
+  <SolidColorBrush x:Key="HeaderBrush" Color="{StaticResource NavyColor}" />
+  <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource GoldColor}" />
+  <SolidColorBrush x:Key="DarkGrayBrush" Color="{StaticResource SurfaceColor}" />
+  <SolidColorBrush x:Key="MediumGrayBrush" Color="{StaticResource BorderSubtleColor}" />
+
+  <!-- Glass / Overlay Brushes -->
+  <SolidColorBrush x:Key="OverlayBrush" Color="#0A0A0E" Opacity="0.82" />
+  <SolidColorBrush x:Key="LightOverlayBrush" Color="#0A0A0E" Opacity="0.50" />
+  <SolidColorBrush x:Key="GlassBrush" Color="#12121A" Opacity="0.75" />
+
+  <!-- Gradient Brushes — atmospheric depth -->
+  <LinearGradientBrush x:Key="BackgroundGradientBrush" StartPoint="0,0" EndPoint="0.3,1">
+    <GradientStop Color="#0A0A0E" Offset="0" />
+    <GradientStop Color="#0D0D16" Offset="0.5" />
+    <GradientStop Color="#0A0F1A" Offset="1" />
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="NavyGradientBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Color="#002244" Offset="0" />
+    <GradientStop Color="#003763" Offset="0.5" />
+    <GradientStop Color="#002A50" Offset="1" />
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="LimeGlowBrush" StartPoint="0,0" EndPoint="1,0">
+    <GradientStop Color="#A4CC27" Offset="0" />
+    <GradientStop Color="#B8E030" Offset="0.5" />
+    <GradientStop Color="#A4CC27" Offset="1" />
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="GlassEdgeBrush" StartPoint="0,0" EndPoint="0,1">
+    <GradientStop Color="#30FFFFFF" Offset="0" />
+    <GradientStop Color="#08FFFFFF" Offset="1" />
+  </LinearGradientBrush>
+
+  <RadialGradientBrush x:Key="LimeRadialGlowBrush" GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+    <GradientStop Color="#30A4CC27" Offset="0" />
+    <GradientStop Color="#00A4CC27" Offset="1" />
+  </RadialGradientBrush>
+
+  <RadialGradientBrush x:Key="SpotlightBrush" GradientOrigin="0.5,0.3" Center="0.5,0.3" RadiusX="0.6" RadiusY="0.8">
+    <GradientStop Color="#10FFFFFF" Offset="0" />
+    <GradientStop Color="#00000000" Offset="1" />
+  </RadialGradientBrush>
+
+  <!-- ═══════════ TYPOGRAPHY ═══════════ -->
+  <!-- Using Segoe UI Variable Display for the cinematic headline feel,
+       falling back to Segoe UI Semibold, then Segoe UI -->
+  <FontFamily x:Key="DisplayFont">Segoe UI Variable Display, Segoe UI Semibold, Segoe UI</FontFamily>
+  <FontFamily x:Key="HeadingFont">Segoe UI Variable Display, Segoe UI Semibold, Segoe UI</FontFamily>
+  <FontFamily x:Key="PrimaryFont">Segoe UI Variable Text, Segoe UI, Segoe UI</FontFamily>
+  <FontFamily x:Key="MonoFont">Cascadia Code, Consolas</FontFamily>
+
+  <!-- Hero — the idle screen headline -->
+  <Style x:Key="HeroTextStyle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontSize" Value="72" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="Effect">
+      <Setter.Value>
+        <DropShadowEffect Color="#A4CC27" BlurRadius="40" ShadowDepth="0" Opacity="0.15" />
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Display — large prompts -->
+  <Style x:Key="DisplayTextStyle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontSize" Value="48" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+
+  <!-- Heading — section titles, screen headers -->
+  <Style x:Key="HeadingTextStyle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource HeadingFont}" />
+    <Setter Property="FontSize" Value="34" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+
+  <!-- Subheading — secondary prompts, descriptions -->
+  <Style x:Key="SubheadingTextStyle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource PrimaryFont}" />
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+
+  <!-- Body — form labels, descriptions, table text -->
+  <Style x:Key="BodyTextStyle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource PrimaryFont}" />
+    <Setter Property="FontSize" Value="16" />
+    <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+
+  <!-- Caption — small metadata, IDs -->
+  <Style x:Key="CaptionTextStyle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource PrimaryFont}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+  </Style>
+
+  <!-- Mono — Student IDs, file paths, codes -->
+  <Style x:Key="MonoTextStyle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource MonoFont}" />
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+  </Style>
+
+  <!-- Guidance — positioning prompts (gold, luminous) -->
+  <Style x:Key="GuidanceTextStyle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontSize" Value="30" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="Effect">
+      <Setter.Value>
+        <DropShadowEffect Color="#FFBF3B" BlurRadius="24" ShadowDepth="0" Opacity="0.3" />
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Countdown — huge cinematic number -->
+  <Style x:Key="CountdownTextStyle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontSize" Value="180" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{StaticResource WhiteBrush}" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Effect">
+      <Setter.Value>
+        <DropShadowEffect Color="#A4CC27" BlurRadius="80" ShadowDepth="0" Opacity="0.5" />
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Label — uppercase tracking for section labels -->
+  <Style x:Key="LabelTextStyle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource PrimaryFont}" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+  </Style>
+
+  <!-- ═══════════ COMMON STORYBOARDS ═══════════ -->
+
+  <!-- Gentle pulse for attract-mode text -->
+  <Storyboard x:Key="PulseAnimation" RepeatBehavior="Forever">
+    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                     From="0.35" To="1.0"
+                     Duration="0:0:2.2"
+                     AutoReverse="True">
+      <DoubleAnimation.EasingFunction>
+        <SineEase EasingMode="EaseInOut" />
+      </DoubleAnimation.EasingFunction>
+    </DoubleAnimation>
+  </Storyboard>
+
+  <!-- Breathing glow for the mic indicator -->
+  <Storyboard x:Key="BreathingGlow" RepeatBehavior="Forever">
+    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                     From="0.4" To="1.0"
+                     Duration="0:0:0.8"
+                     AutoReverse="True">
+      <DoubleAnimation.EasingFunction>
+        <SineEase EasingMode="EaseInOut" />
+      </DoubleAnimation.EasingFunction>
+    </DoubleAnimation>
+  </Storyboard>
+
+  <!-- Fade-in for view transitions -->
+  <Storyboard x:Key="FadeInStoryboard">
+    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                     From="0" To="1"
+                     Duration="0:0:0.4">
+      <DoubleAnimation.EasingFunction>
+        <CubicEase EasingMode="EaseOut" />
+      </DoubleAnimation.EasingFunction>
+    </DoubleAnimation>
+  </Storyboard>
+
+  <!-- Slide-up entrance -->
+  <Storyboard x:Key="SlideUpStoryboard">
+    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                     From="30" To="0"
+                     Duration="0:0:0.5">
+      <DoubleAnimation.EasingFunction>
+        <CubicEase EasingMode="EaseOut" />
+      </DoubleAnimation.EasingFunction>
+    </DoubleAnimation>
+    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                     From="0" To="1"
+                     Duration="0:0:0.4">
+      <DoubleAnimation.EasingFunction>
+        <CubicEase EasingMode="EaseOut" />
+      </DoubleAnimation.EasingFunction>
+    </DoubleAnimation>
+  </Storyboard>
+
+</ResourceDictionary>

@@ -1,0 +1,20 @@
+We are wanting build a new wpf app using modern architecture and features of the .NET platform. The student will walk in the camera's view and that will trigger person detection.
+It will ask them their name and try to match it against a name that has been uploaded through a csv file and ask the user for confirmation. (This part will utilize TTS and STT).
+I would like to use Azure cloud services if possible for the backend, but if free alternatives exist, open to that as well.
+
+The app will give them instructions using TTS to get in the proper position.  The student will see what the camera sees on the screen along with text rendered and verbal instructions from the app.
+
+The app will then use a web camera to capture the student's photo.
+It will give the student a chance to confirm that everything looks good or retake the picture.
+It will intelligently crop, centering their nose and cropping their full face with some padding to a pre-defined dimension that is defined in configuration.
+The app will then save the image file in a format defined by configuration in the app and also in a name format and directory that will be defined in the app.
+The filename could be built with templates using columns that were uploaded in the csv file. IE {firstname}_{lastname}.padding using the matched student.
+Once the picture is saved, that student is removed from the possibilities.
+
+An alternate workflow would be that the user points to app to a directory with pre-taken photos, and the app centers on their nose, crops the picture, saves the file with the right name..etc.
+
+Primary goals:
+App should be responsive modern and just cool.  The functional goal is to be able to quicly save images for ingestion into a student information system database.
+Research the work of Billy Hollis, Laurent Bugnion, Alan Cooper, Bret Victor and John (Jared) Gossman. Using their work as inspiration, make a first-class modern and stunning showcase application.
+Should use the Tech901 branding, details of which can be found in the images/branding folder
+

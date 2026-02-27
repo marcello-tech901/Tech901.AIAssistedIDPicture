@@ -1,0 +1,106 @@
+<Window x:Class="Tech901.IdPhoto.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:Tech901.IdPhoto.App.Converters"
+        xmlns:vm="clr-namespace:Tech901.IdPhoto.ViewModels;assembly=Tech901.IdPhoto.ViewModels"
+        Title="Tech901 ID Photo Kiosk"
+        WindowState="Maximized"
+        WindowStyle="None"
+        Background="{StaticResource BackgroundBrush}"
+        KeyDown="Window_KeyDown">
+
+  <Window.Resources>
+    <converters:ByteArrayToImageConverter x:Key="ByteArrayToImage" />
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+  </Window.Resources>
+
+  <Grid>
+    <!-- Layer 0: Atmospheric gradient backdrop -->
+    <Border Background="{StaticResource BackgroundGradientBrush}" />
+
+    <!-- Layer 1: Camera preview (subtle, cinematic) -->
+    <Image Source="{Binding CurrentFrame, Converter={StaticResource ByteArrayToImage}}"
+           Stretch="UniformToFill"
+           Opacity="0.25"
+           RenderOptions.BitmapScalingMode="HighQuality">
+      <Image.Effect>
+        <BlurEffect Radius="3" />
+      </Image.Effect>
+    </Image>
+
+    <!-- Layer 2: Spotlight / vignette overlay -->
+    <Border>
+      <Border.Background>
+        <RadialGradientBrush GradientOrigin="0.5,0.35" Center="0.5,0.4" RadiusX="0.65" RadiusY="0.7">
+          <GradientStop Color="#00000000" Offset="0.0" />
+          <GradientStop Color="#40000000" Offset="0.7" />
+          <GradientStop Color="#90000000" Offset="1.0" />
+        </RadialGradientBrush>
+      </Border.Background>
+    </Border>
+
+    <!-- Layer 3: Current view content -->
+    <ContentControl Content="{Binding CurrentViewModel}" />
+
+    <!-- Admin gear icon — frosted glass pill, bottom-right -->
+    <Button Style="{StaticResource GhostButtonStyle}"
+            Content="&#x2699;"
+            FontSize="18"
+            Padding="12,8"
+            Opacity="0.25"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Margin="0,0,20,20"
+            Command="{Binding ToggleAdminCommand}"
+            ToolTip="Admin (Ctrl+Shift+A)" />
+
+    <!-- PIN Dialog Overlay -->
+    <Grid Visibility="{Binding IsPinDialogVisible, Converter={StaticResource BoolToVisibility}}">
+      <Border Background="#CC000000" />
+      <Border Background="{StaticResource PanelBrush}"
+              BorderBrush="{StaticResource BorderSubtleBrush}"
+              BorderThickness="1"
+              CornerRadius="16"
+              Padding="40,32"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              MinWidth="360">
+        <Border.Effect>
+          <DropShadowEffect Color="Black" BlurRadius="60" ShadowDepth="8" Opacity="0.6" />
+        </Border.Effect>
+        <StackPanel>
+          <TextBlock Text="Admin Access"
+                     Style="{StaticResource HeadingTextStyle}"
+                     FontSize="24"
+                     Margin="0,0,0,8" />
+          <TextBlock Text="Enter PIN to continue"
+                     Style="{StaticResource SubheadingTextStyle}"
+                     FontSize="15"
+                     Margin="0,0,0,24" />
+          <PasswordBox x:Name="PinBox"
+                       MaxLength="10"
+                       FontSize="22"
+                       FontFamily="{StaticResource MonoFont}"
+                       Padding="14,10"
+                       HorizontalAlignment="Stretch"
+                       Margin="0,0,0,24"
+                       Background="{StaticResource SurfaceBrush}"
+                       Foreground="{StaticResource WhiteBrush}"
+                       BorderBrush="{StaticResource BorderSubtleBrush}"
+                       BorderThickness="1"
+                       KeyDown="PinBox_KeyDown"
+                       IsVisibleChanged="PinBox_IsVisibleChanged" />
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="Unlock"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Click="UnlockButton_Click"
+                    Margin="0,0,12,0" />
+            <Button Content="Cancel"
+                    Style="{StaticResource GhostButtonStyle}"
+                    Command="{Binding CancelPinCommand}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </Grid>
+</Window>
