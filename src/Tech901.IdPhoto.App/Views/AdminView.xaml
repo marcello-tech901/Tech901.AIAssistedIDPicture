@@ -5,6 +5,8 @@
   <UserControl.Resources>
     <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter" />
     <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+    <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter" />
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisInvertConverter" />
   </UserControl.Resources>
   <Grid Background="{StaticResource BackgroundGradientBrush}">
     <Grid.RowDefinitions>
@@ -36,13 +38,31 @@
                      TextAlignment="Left"
                      FontSize="26" />
         </StackPanel>
-        <Button Content="Back to Kiosk"
-                Style="{StaticResource GhostButtonStyle}"
-                Foreground="{StaticResource WhiteBrush}"
-                Command="{Binding ExitAdminCommand}"
-                DockPanel.Dock="Right"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center" />
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <Button Command="{Binding ToggleServiceStatusCommand}"
+                  Padding="10,6"
+                  FontSize="12"
+                  Margin="0,0,12,0"
+                  ToolTip="Toggle Azure service status panel">
+            <Button.Style>
+              <Style TargetType="Button" BasedOn="{StaticResource GhostButtonStyle}">
+                <Setter Property="Foreground" Value="{StaticResource WhiteDimBrush}" />
+                <Setter Property="Content" Value="Azure Services" />
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding IsServiceStatusVisible}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource LimeGreenBrush}" />
+                    <Setter Property="Content" Value="Azure Services" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Button.Style>
+          </Button>
+          <Button Content="Back to Kiosk"
+                  Style="{StaticResource GhostButtonStyle}"
+                  Foreground="{StaticResource WhiteBrush}"
+                  Command="{Binding ExitAdminCommand}"
+                  VerticalAlignment="Center" />
+        </StackPanel>
       </DockPanel>
     </Border>
 
@@ -59,6 +79,260 @@
               Padding="28,24">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel>
+            <!-- ═══════════════ AZURE SERVICES STATUS ═══════════════ -->
+            <Border Visibility="{Binding IsServiceStatusVisible, Converter={StaticResource BoolToVisConverter}}"
+                    Margin="0,0,0,20">
+              <Border CornerRadius="10"
+                      Padding="20,18">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#14003763" Offset="0" />
+                    <GradientStop Color="#0C1A1A26" Offset="1" />
+                  </LinearGradientBrush>
+                </Border.Background>
+                <Border.BorderBrush>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#30003763" Offset="0" />
+                    <GradientStop Color="#18003763" Offset="1" />
+                  </LinearGradientBrush>
+                </Border.BorderBrush>
+                <Border.BorderThickness>1</Border.BorderThickness>
+                <StackPanel>
+                  <!-- Section header -->
+                  <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock Text="AZURE AI SERVICES"
+                               Style="{StaticResource LabelTextStyle}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="AI-102"
+                               FontSize="9"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource NavyBrush}"
+                               Background="#20003763"
+                               Padding="6,2"
+                               Margin="10,0,0,0"
+                               VerticalAlignment="Center" />
+                  </StackPanel>
+                  <TextBlock Text="Null Object Pattern — services degrade gracefully when Azure credentials are absent."
+                             Style="{StaticResource CaptionTextStyle}"
+                             Foreground="{StaticResource SecondaryTextBrush}"
+                             FontSize="10"
+                             FontStyle="Italic"
+                             TextWrapping="Wrap"
+                             Margin="0,0,0,14" />
+
+                  <!-- ── Speech Service ── -->
+                  <Border CornerRadius="8"
+                          Background="{StaticResource SurfaceBrush}"
+                          Padding="14,12"
+                          Margin="0,0,0,8">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                      </Grid.RowDefinitions>
+
+                      <!-- Status indicator dot -->
+                      <Ellipse Grid.Column="0" Grid.RowSpan="2"
+                               Width="10" Height="10"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0">
+                        <Ellipse.Style>
+                          <Style TargetType="Ellipse">
+                            <Setter Property="Fill" Value="{StaticResource ErrorRedBrush}" />
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding IsSpeechAvailable}" Value="True">
+                                <Setter Property="Fill" Value="{StaticResource LimeGreenBrush}" />
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </Ellipse.Style>
+                      </Ellipse>
+
+                      <!-- Service name -->
+                      <TextBlock Grid.Column="1" Grid.Row="0"
+                                 Text="Speech Service"
+                                 Style="{StaticResource CaptionTextStyle}"
+                                 Foreground="{StaticResource WhiteBrush}"
+                                 FontWeight="SemiBold"
+                                 FontSize="13" />
+
+                      <!-- Status badge -->
+                      <Border Grid.Column="2" Grid.Row="0"
+                              CornerRadius="4"
+                              Padding="8,2"
+                              VerticalAlignment="Center">
+                        <Border.Style>
+                          <Style TargetType="Border">
+                            <Setter Property="Background" Value="#25FF4466" />
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding IsSpeechAvailable}" Value="True">
+                                <Setter Property="Background" Value="#20A4CC27" />
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </Border.Style>
+                        <TextBlock FontSize="10" FontWeight="SemiBold">
+                          <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                              <Setter Property="Text" Value="FALLBACK" />
+                              <Setter Property="Foreground" Value="{StaticResource ErrorRedBrush}" />
+                              <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSpeechAvailable}" Value="True">
+                                  <Setter Property="Text" Value="ACTIVE" />
+                                  <Setter Property="Foreground" Value="{StaticResource LimeGreenBrush}" />
+                                </DataTrigger>
+                              </Style.Triggers>
+                            </Style>
+                          </TextBlock.Style>
+                        </TextBlock>
+                      </Border>
+
+                      <!-- Description -->
+                      <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1"
+                                 Text="{Binding SpeechFallbackDescription}"
+                                 Style="{StaticResource CaptionTextStyle}"
+                                 FontSize="10"
+                                 TextWrapping="Wrap"
+                                 Margin="0,3,0,0" />
+                    </Grid>
+                  </Border>
+
+                  <!-- ── Face API ── -->
+                  <Border CornerRadius="8"
+                          Background="{StaticResource SurfaceBrush}"
+                          Padding="14,12"
+                          Margin="0,0,0,8">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                      </Grid.RowDefinitions>
+
+                      <Ellipse Grid.Column="0" Grid.RowSpan="2"
+                               Width="10" Height="10"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0">
+                        <Ellipse.Style>
+                          <Style TargetType="Ellipse">
+                            <Setter Property="Fill" Value="{StaticResource ErrorRedBrush}" />
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding IsFaceDetectionAvailable}" Value="True">
+                                <Setter Property="Fill" Value="{StaticResource LimeGreenBrush}" />
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </Ellipse.Style>
+                      </Ellipse>
+
+                      <TextBlock Grid.Column="1" Grid.Row="0"
+                                 Text="Face API"
+                                 Style="{StaticResource CaptionTextStyle}"
+                                 Foreground="{StaticResource WhiteBrush}"
+                                 FontWeight="SemiBold"
+                                 FontSize="13" />
+
+                      <Border Grid.Column="2" Grid.Row="0"
+                              CornerRadius="4"
+                              Padding="8,2"
+                              VerticalAlignment="Center">
+                        <Border.Style>
+                          <Style TargetType="Border">
+                            <Setter Property="Background" Value="#25FF4466" />
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding IsFaceDetectionAvailable}" Value="True">
+                                <Setter Property="Background" Value="#20A4CC27" />
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </Border.Style>
+                        <TextBlock FontSize="10" FontWeight="SemiBold">
+                          <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                              <Setter Property="Text" Value="FALLBACK" />
+                              <Setter Property="Foreground" Value="{StaticResource ErrorRedBrush}" />
+                              <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsFaceDetectionAvailable}" Value="True">
+                                  <Setter Property="Text" Value="ACTIVE" />
+                                  <Setter Property="Foreground" Value="{StaticResource LimeGreenBrush}" />
+                                </DataTrigger>
+                              </Style.Triggers>
+                            </Style>
+                          </TextBlock.Style>
+                        </TextBlock>
+                      </Border>
+
+                      <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1"
+                                 Text="{Binding FaceDetectionFallbackDescription}"
+                                 Style="{StaticResource CaptionTextStyle}"
+                                 FontSize="10"
+                                 TextWrapping="Wrap"
+                                 Margin="0,3,0,0" />
+                    </Grid>
+                  </Border>
+
+                  <!-- ── Presence Detection (always local) ── -->
+                  <Border CornerRadius="8"
+                          Background="{StaticResource SurfaceBrush}"
+                          Padding="14,12">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                      </Grid.RowDefinitions>
+
+                      <Ellipse Grid.Column="0" Grid.RowSpan="2"
+                               Width="10" Height="10"
+                               Fill="{StaticResource LimeGreenBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0" />
+
+                      <TextBlock Grid.Column="1" Grid.Row="0"
+                                 Text="Presence Detection"
+                                 Style="{StaticResource CaptionTextStyle}"
+                                 Foreground="{StaticResource WhiteBrush}"
+                                 FontWeight="SemiBold"
+                                 FontSize="13" />
+
+                      <Border Grid.Column="2" Grid.Row="0"
+                              CornerRadius="4"
+                              Padding="8,2"
+                              Background="#20003763"
+                              VerticalAlignment="Center">
+                        <TextBlock Text="LOCAL"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource NavyBrush}" />
+                      </Border>
+
+                      <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1"
+                                 Text="{Binding PresenceDetectionDescription}"
+                                 Style="{StaticResource CaptionTextStyle}"
+                                 FontSize="10"
+                                 TextWrapping="Wrap"
+                                 Margin="0,3,0,0" />
+                    </Grid>
+                  </Border>
+                </StackPanel>
+              </Border>
+
+              <!-- Section divider after service status -->
+            </Border>
+
             <!-- ═══════════════ ROSTER SECTION ═══════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
               <TextBlock Text="&#x1F4CB;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
@@ -253,6 +527,76 @@
                        Margin="0,0,0,32" />
 
             <!-- Section divider -->
+            <Border Height="1" Background="{StaticResource BorderSubtleBrush}" Margin="0,4,0,4" />
+
+            <!-- ═══════════════ CAMERA SECTION ═══════════════ -->
+            <StackPanel Orientation="Horizontal" Margin="0,28,0,8">
+              <TextBlock Text="&#x1F4F7;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="CAMERA"
+                         Style="{StaticResource LabelTextStyle}" />
+            </StackPanel>
+
+            <TextBlock Text="Camera Device" Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,6" />
+            <ComboBox ItemsSource="{Binding CameraDevices}"
+                      SelectedItem="{Binding SelectedCameraDevice}"
+                      DisplayMemberPath="DisplayName"
+                      Style="{StaticResource KioskComboBoxStyle}"
+                      Margin="0,0,0,4" />
+            <TextBlock Text="Select which camera to use for ID photo capture. If you have multiple cameras (built-in + USB), choose the preferred one."
+                       Style="{StaticResource CaptionTextStyle}"
+                       Foreground="{StaticResource SecondaryTextBrush}"
+                       TextWrapping="Wrap"
+                       FontSize="11"
+                       Margin="0,0,0,10" />
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <Button Content="Refresh Cameras"
+                      Style="{StaticResource GhostButtonStyle}"
+                      Command="{Binding RefreshCameraDevicesCommand}"
+                      Padding="10,6"
+                      FontSize="12"
+                      Margin="0,0,8,0" />
+              <Button Command="{Binding ToggleCameraPreviewCommand}"
+                      Padding="10,6"
+                      FontSize="12">
+                <Button.Style>
+                  <Style TargetType="Button" BasedOn="{StaticResource GhostButtonStyle}">
+                    <Setter Property="Content" Value="Show Preview" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsCameraPreviewActive}" Value="True">
+                        <Setter Property="Content" Value="Hide Preview" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Button.Style>
+              </Button>
+            </StackPanel>
+
+            <!-- Live camera preview -->
+            <Border Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderSubtleBrush}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="4"
+                    Margin="0,0,0,10"
+                    MaxHeight="200"
+                    Visibility="{Binding IsCameraPreviewActive, Converter={StaticResource BoolToVisConverter}}">
+              <Image Source="{Binding CameraPreviewFrame, Converter={StaticResource ByteArrayToImageConverter}}"
+                     Stretch="Uniform"
+                     RenderTransformOrigin="0.5,0.5">
+                <Image.RenderTransform>
+                  <ScaleTransform ScaleX="-1" />
+                </Image.RenderTransform>
+              </Image>
+            </Border>
+
+            <!-- Switching indicator -->
+            <TextBlock Text="Switching camera..."
+                       Style="{StaticResource CaptionTextStyle}"
+                       Foreground="{StaticResource GoldBrush}"
+                       Margin="0,0,0,10"
+                       Visibility="{Binding IsCameraSwitching, Converter={StaticResource BoolToVisConverter}}" />
+
             <Border Height="1" Background="{StaticResource BorderSubtleBrush}" Margin="0,4,0,4" />
 
             <!-- ═══════════════ AUDIO DEVICES SECTION ═══════════════ -->

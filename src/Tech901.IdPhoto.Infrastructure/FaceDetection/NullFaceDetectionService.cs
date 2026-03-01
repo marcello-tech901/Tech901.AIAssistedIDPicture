@@ -25,6 +25,10 @@ public sealed class NullFaceDetectionService : IFaceDetectionService
 {
     private readonly ILogger<NullFaceDetectionService> _logger;
 
+    /// <inheritdoc />
+    /// <remarks>Always returns <c>false</c> — no Azure Face API credentials are available.</remarks>
+    public bool IsAvailable => false;
+
     /// <summary>
     /// Initializes the null face detection service and logs a warning to alert operators
     /// that face detection is disabled.

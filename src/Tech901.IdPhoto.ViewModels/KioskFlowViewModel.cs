@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Tech901.IdPhoto.Core.Enums;
 using Tech901.IdPhoto.Core.Interfaces;
@@ -50,6 +51,12 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
     private const string AdminPin = "9019";
 
     /// <summary>
+    /// Zero-based index of the camera device to use. Updated from admin panel;
+    /// read from config at startup, defaults to 0 (first camera).
+    /// </summary>
+    public int CameraDeviceIndex { get; set; }
+
+    /// <summary>
     /// The current state in the kiosk workflow. Bound by the View layer to drive visual transitions.
     /// </summary>
     [ObservableProperty]
@@ -88,6 +95,7 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
         IFaceDetectionService faceDetection,
         ISpeechService speech,
         IDispatcher dispatcher,
+        IConfiguration configuration,
         ILogger<KioskFlowViewModel> logger)
     {
         _services = services;
@@ -98,6 +106,9 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
         _speech = speech;
         _dispatcher = dispatcher;
         _logger = logger;
+
+        if (int.TryParse(configuration["Kiosk:Camera:DeviceIndex"], out var configIndex))
+            CameraDeviceIndex = configIndex;
 
         _camera.FrameCaptured += OnFrameCaptured;
     }
@@ -118,8 +129,8 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
     /// <param name="ct">Cancellation token for camera initialization.</param>
     public async Task InitializeAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("Initializing kiosk flow");
-        await _camera.StartAsync(0, ct);
+        _logger.LogInformation("Initializing kiosk flow with camera device index {DeviceIndex}", CameraDeviceIndex);
+        await _camera.StartAsync(CameraDeviceIndex, ct);
         TransitionTo(KioskState.Idle);
     }
 
@@ -163,6 +174,12 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
             IsPinDialogVisible = false;
             IsAdminMode = true;
             _logger.LogInformation("Admin mode activated");
+
+            // Dispose the current child (e.g. IdleViewModel) to stop presence detection
+            // polling. Without this, face detection would fire TransitionTo(NameCapture)
+            // while the admin panel is open.
+            DisposeCurrentChild();
+
             var admin = Resolve<AdminViewModel>();
             admin.ExitRequested += () => ToggleAdmin();
             admin.BatchProcessRequested += () => ShowBatchProcess();
@@ -238,7 +255,18 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
                 _currentStudent = null;
                 _capturedPhoto = null;
                 var idle = Resolve<IdleViewModel>();
-                idle.FaceDetected += () => TransitionTo(KioskState.NameCapture);
+                idle.FaceDetected += () =>
+                {
+                    // Guard: ignore face detection when admin panel is open.
+                    // The idle VM is disposed on admin entry, but this belt-and-suspenders
+                    // check prevents transitions if a race condition fires the event late.
+                    if (IsAdminMode)
+                    {
+                        _logger.LogDebug("Face detected while admin mode active — ignoring");
+                        return;
+                    }
+                    TransitionTo(KioskState.NameCapture);
+                };
                 FireAndForget(idle.StartPollingAsync());
                 SetCurrentViewModel(idle);
                 break;

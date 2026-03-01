@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Tech901.IdPhoto.Core.Enums;
@@ -35,6 +36,9 @@ public class KioskFlowViewModelTests : IDisposable
 
         _audioDevices.Setup(a => a.GetInputDevices()).Returns([]);
         _audioDevices.Setup(a => a.GetOutputDevices()).Returns([]);
+        _camera.Setup(c => c.EnumerateDevices()).Returns(new List<string>());
+
+        var configuration = new Mock<IConfiguration>();
 
         _sut = new KioskFlowViewModel(
             _serviceProvider.Object,
@@ -44,6 +48,7 @@ public class KioskFlowViewModelTests : IDisposable
             _faceDetection.Object,
             _speech.Object,
             _dispatcher,
+            configuration.Object,
             NullLogger<KioskFlowViewModel>.Instance);
     }
 
@@ -86,7 +91,11 @@ public class KioskFlowViewModelTests : IDisposable
         var adminVm = new AdminViewModel(
             _roster.Object,
             _audioDevices.Object,
+            _camera.Object,
+            _dispatcher,
+            _sut,
             _speech.Object,
+            _faceDetection.Object,
             NullLogger<AdminViewModel>.Instance);
 
         _serviceProvider.Setup(sp => sp.GetService(typeof(AdminViewModel)))
@@ -125,7 +134,11 @@ public class KioskFlowViewModelTests : IDisposable
         var adminVm = new AdminViewModel(
             _roster.Object,
             _audioDevices.Object,
+            _camera.Object,
+            _dispatcher,
+            _sut,
             _speech.Object,
+            _faceDetection.Object,
             NullLogger<AdminViewModel>.Instance);
 
         _serviceProvider.Setup(sp => sp.GetService(typeof(AdminViewModel)))

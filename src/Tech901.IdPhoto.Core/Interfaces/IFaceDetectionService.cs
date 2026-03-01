@@ -14,6 +14,16 @@ namespace Tech901.IdPhoto.Core.Interfaces;
 public interface IFaceDetectionService
 {
     /// <summary>
+    /// Gets a value indicating whether the face detection service is operational.
+    /// </summary>
+    /// <remarks>
+    /// Returns <see langword="true"/> when Azure Face API credentials are configured and
+    /// the service is ready to detect faces. Returns <see langword="false"/> for the null
+    /// fallback, signaling that photos will be center-cropped instead of face-cropped.
+    /// </remarks>
+    bool IsAvailable { get; }
+
+    /// <summary>
     /// Detects the primary face in the supplied image data.
     /// </summary>
     /// <param name="imageData">Raw image bytes (JPEG or PNG) to analyze.</param>

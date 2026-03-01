@@ -28,6 +28,10 @@ namespace Tech901.IdPhoto.Infrastructure.FaceDetection;
 /// </remarks>
 public sealed class AzureFaceService : IFaceDetectionService
 {
+    /// <inheritdoc />
+    /// <remarks>Always returns <c>true</c> — Azure Face API credentials were validated at construction.</remarks>
+    public bool IsAvailable => true;
+
     private readonly FaceClient _client;
     private readonly ILogger<AzureFaceService> _logger;
     private readonly AsyncRetryPolicy _retryPolicy;
