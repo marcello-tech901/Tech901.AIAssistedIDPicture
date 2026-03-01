@@ -1,4 +1,5 @@
 using Tech901.IdPhoto.Core.Interfaces;
+using Tech901.IdPhoto.Core.Models;
 
 namespace Tech901.IdPhoto.Infrastructure.Speech;
 
@@ -38,4 +39,17 @@ public sealed class NullSpeechService : ISpeechService
     /// <inheritdoc />
     /// <remarks>No-op: nothing to pre-warm when there is no recognizer to prepare.</remarks>
     public Task PrepareListenAsync(CancellationToken ct = default) => Task.CompletedTask;
+
+    /// <inheritdoc />
+    /// <remarks>Returns <see cref="string.Empty"/> — no voice is configured.</remarks>
+    public string CurrentVoice => string.Empty;
+
+    /// <inheritdoc />
+    /// <remarks>Returns an empty list — no voices available without Azure credentials.</remarks>
+    public Task<IReadOnlyList<VoiceInfo>> GetAvailableVoicesAsync(CancellationToken ct = default) =>
+        Task.FromResult<IReadOnlyList<VoiceInfo>>([]);
+
+    /// <inheritdoc />
+    /// <remarks>No-op: voice selection has no effect without Azure credentials.</remarks>
+    public void SetVoice(string voiceShortName) { }
 }

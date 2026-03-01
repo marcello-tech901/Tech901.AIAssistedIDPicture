@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Tech901.IdPhoto.App.Services;
 using Tech901.IdPhoto.Core.Interfaces;
+using Tech901.IdPhoto.Core.Models;
 using Tech901.IdPhoto.Core.Services;
 using Tech901.IdPhoto.Infrastructure.DependencyInjection;
 using Tech901.IdPhoto.ViewModels;
@@ -105,6 +107,30 @@ public partial class App : Application
         catch (Exception ex)
         {
             Log.Warning(ex, "Failed to restore persisted state — starting fresh");
+        }
+
+        // Restore persisted voice setting
+        try
+        {
+            var config = _host.Services.GetRequiredService<IConfiguration>();
+            var outputDir = config["Kiosk:OutputDirectory"] ?? "./output";
+            var voicePath = Path.Combine(outputDir, "voice-settings.json");
+
+            if (File.Exists(voicePath))
+            {
+                var json = await File.ReadAllTextAsync(voicePath);
+                var voiceSettings = JsonSerializer.Deserialize<VoiceSettings>(json);
+                if (!string.IsNullOrWhiteSpace(voiceSettings?.SelectedVoice))
+                {
+                    var speechService = _host.Services.GetRequiredService<ISpeechService>();
+                    speechService.SetVoice(voiceSettings.SelectedVoice);
+                    Log.Information("Restored persisted voice setting: {Voice}", voiceSettings.SelectedVoice);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Failed to restore voice settings — using default voice");
         }
     }
 

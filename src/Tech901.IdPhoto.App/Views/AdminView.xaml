@@ -83,7 +83,7 @@
       <!-- Left panel: Controls in glass card -->
       <Border Grid.Column="0"
               Style="{StaticResource GlassCardStyle}"
-              Padding="28,24">
+              Padding="28,24,40,24">
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       Style="{StaticResource OnyxScrollViewerStyle}">
           <StackPanel>
@@ -674,6 +674,67 @@
                       Command="{Binding TestSpeakerCommand}"
                       Padding="10,6"
                       FontSize="12" />
+            </StackPanel>
+
+            <!-- ═══════════════ VOICE SELECTION ═══════════════ -->
+            <StackPanel Visibility="{Binding IsSpeechAvailable, Converter={StaticResource BoolToVisConverter}}">
+              <StackPanel Orientation="Horizontal" Margin="0,28,0,8">
+                <TextBlock Text="&#x1F399;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBlock Text="TTS VOICE"
+                           Style="{StaticResource LabelTextStyle}" />
+              </StackPanel>
+
+              <TextBlock Text="Voice" Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,6" />
+              <ComboBox ItemsSource="{Binding AvailableVoices}"
+                        SelectedItem="{Binding SelectedVoice}"
+                        Style="{StaticResource KioskComboBoxStyle}"
+                        Margin="0,0,0,4">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock TextTrimming="CharacterEllipsis">
+                      <Run Text="{Binding DisplayName, Mode=OneWay}" />
+                      <Run Text=" (" Foreground="{StaticResource SecondaryTextBrush}" /><Run Text="{Binding Gender, Mode=OneWay}" Foreground="{StaticResource SecondaryTextBrush}" /><Run Text=")" Foreground="{StaticResource SecondaryTextBrush}" />
+                    </TextBlock>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <TextBlock Text="Select the neural voice used for spoken prompts. Changes take effect immediately."
+                         Style="{StaticResource CaptionTextStyle}"
+                         Foreground="{StaticResource SecondaryTextBrush}"
+                         TextWrapping="Wrap"
+                         FontSize="11"
+                         Margin="0,0,0,10" />
+
+              <!-- Loading indicator -->
+              <TextBlock Text="Loading voices..."
+                         Style="{StaticResource CaptionTextStyle}"
+                         Foreground="{StaticResource GoldBrush}"
+                         Margin="0,0,0,6"
+                         Visibility="{Binding IsLoadingVoices, Converter={StaticResource BoolToVisConverter}}" />
+
+              <!-- Error message -->
+              <TextBlock Text="{Binding VoiceLoadError}"
+                         Style="{StaticResource CaptionTextStyle}"
+                         Foreground="{StaticResource ErrorRedBrush}"
+                         TextWrapping="Wrap"
+                         Margin="0,0,0,6"
+                         Visibility="{Binding VoiceLoadError, Converter={StaticResource NotNullToVisibilityConverter}}" />
+
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,32">
+                <Button Content="Refresh Voices"
+                        Style="{StaticResource GhostButtonStyle}"
+                        Command="{Binding RefreshVoicesCommand}"
+                        Padding="10,6"
+                        FontSize="12"
+                        Margin="0,0,8,0" />
+                <Button Content="Preview Voice"
+                        Style="{StaticResource GhostButtonStyle}"
+                        Command="{Binding PreviewVoiceCommand}"
+                        Padding="10,6"
+                        FontSize="12" />
+              </StackPanel>
+
+              <Border Height="1" Background="{StaticResource BorderSubtleBrush}" Margin="0,4,0,4" />
             </StackPanel>
 
             <!-- Section divider -->

@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Tech901.IdPhoto.Infrastructure.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Tech901.IdPhoto.Core\Tech901.IdPhoto.Core.csproj" />
   </ItemGroup>
 

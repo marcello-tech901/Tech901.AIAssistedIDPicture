@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Configuration;
@@ -68,6 +70,15 @@ public partial class AdminViewModel : ObservableObject
     [ObservableProperty]
     private bool _isServiceStatusVisible;
 
+    [ObservableProperty]
+    private VoiceInfo? _selectedVoice;
+
+    [ObservableProperty]
+    private bool _isLoadingVoices;
+
+    [ObservableProperty]
+    private string? _voiceLoadError;
+
     /// <summary>Whether the Azure Speech Service is active (vs. NullSpeechService fallback).</summary>
     public bool IsSpeechAvailable => _speech.IsAvailable;
 
@@ -95,6 +106,7 @@ public partial class AdminViewModel : ObservableObject
     public ObservableCollection<AudioDeviceInfo> MicrophoneDevices { get; } = [];
     public ObservableCollection<AudioDeviceInfo> SpeakerDevices { get; } = [];
     public ObservableCollection<CameraDeviceInfo> CameraDevices { get; } = [];
+    public ObservableCollection<VoiceInfo> AvailableVoices { get; } = [];
 
     /// <summary>Raised when the admin wants to exit back to kiosk.</summary>
     public event Action? ExitRequested;
@@ -143,6 +155,10 @@ public partial class AdminViewModel : ObservableObject
         // existing students when re-entering the admin panel.
         RosterFilePath = _roster.SourceFilePath;
         RefreshStudents();
+
+        // Load available voices in the background when entering admin
+        if (_speech.IsAvailable)
+            FireAndForget(LoadVoicesAsync());
     }
 
     [RelayCommand]
@@ -374,6 +390,88 @@ public partial class AdminViewModel : ObservableObject
     private void TestSpeaker()
     {
         FireAndForget(_speech.SpeakAsync("This is a test of the speaker output."));
+    }
+
+    [RelayCommand]
+    private async Task RefreshVoicesAsync()
+    {
+        await LoadVoicesAsync();
+    }
+
+    [RelayCommand]
+    private void PreviewVoice()
+    {
+        if (SelectedVoice is null)
+            return;
+
+        FireAndForget(_speech.SpeakAsync("Hello! This is a preview of the selected voice."));
+    }
+
+    private async Task LoadVoicesAsync()
+    {
+        IsLoadingVoices = true;
+        VoiceLoadError = null;
+
+        try
+        {
+            var voices = await _speech.GetAvailableVoicesAsync();
+
+            _dispatcher.Invoke(() =>
+            {
+                AvailableVoices.Clear();
+                foreach (var voice in voices)
+                    AvailableVoices.Add(voice);
+
+                // Pre-select the current voice, or fall back to first
+                var currentVoice = _speech.CurrentVoice;
+                SelectedVoice = AvailableVoices.FirstOrDefault(v =>
+                    v.ShortName.Equals(currentVoice, StringComparison.OrdinalIgnoreCase))
+                    ?? AvailableVoices.FirstOrDefault();
+            });
+
+            _logger.LogInformation("Loaded {Count} voices, selected {Voice}",
+                AvailableVoices.Count, SelectedVoice?.ShortName ?? "(none)");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load available voices");
+            VoiceLoadError = "Failed to load voices. Click Refresh to retry.";
+        }
+        finally
+        {
+            IsLoadingVoices = false;
+        }
+    }
+
+    partial void OnSelectedVoiceChanged(VoiceInfo? value)
+    {
+        if (value is null)
+            return;
+
+        _speech.SetVoice(value.ShortName);
+        FireAndForget(SaveVoiceSettingsAsync());
+    }
+
+    private async Task SaveVoiceSettingsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(OutputDirectory) || SelectedVoice is null)
+            return;
+
+        try
+        {
+            var settings = new VoiceSettings { SelectedVoice = SelectedVoice.ShortName };
+            var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+            var path = Path.Combine(OutputDirectory, "voice-settings.json");
+
+            Directory.CreateDirectory(OutputDirectory);
+            await File.WriteAllTextAsync(path, json);
+
+            _logger.LogDebug("Voice settings saved to {Path}", path);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to save voice settings");
+        }
     }
 
     private void OnCameraPreviewFrame(object? sender, byte[] frame)

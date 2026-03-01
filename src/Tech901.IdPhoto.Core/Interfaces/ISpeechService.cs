@@ -1,3 +1,5 @@
+using Tech901.IdPhoto.Core.Models;
+
 namespace Tech901.IdPhoto.Core.Interfaces;
 
 /// <summary>
@@ -55,4 +57,22 @@ public interface ISpeechService
     /// pipeline are initialized before the participant begins speaking.
     /// </remarks>
     Task PrepareListenAsync(CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets the short name of the currently active TTS voice (e.g., "en-US-JennyNeural").
+    /// </summary>
+    string CurrentVoice { get; }
+
+    /// <summary>
+    /// Fetches the list of available en-US neural voices from Azure.
+    /// </summary>
+    /// <param name="ct">Optional cancellation token.</param>
+    /// <returns>Available voices, or an empty list when the service is unavailable.</returns>
+    Task<IReadOnlyList<VoiceInfo>> GetAvailableVoicesAsync(CancellationToken ct = default);
+
+    /// <summary>
+    /// Changes the active TTS voice at runtime.
+    /// </summary>
+    /// <param name="voiceShortName">The voice short name to switch to.</param>
+    void SetVoice(string voiceShortName);
 }

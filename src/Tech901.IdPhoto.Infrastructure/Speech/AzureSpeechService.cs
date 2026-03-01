@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tech901.IdPhoto.Core.Interfaces;
 using Tech901.IdPhoto.Infrastructure.Configuration;
+using CoreVoiceInfo = Tech901.IdPhoto.Core.Models.VoiceInfo;
 
 namespace Tech901.IdPhoto.Infrastructure.Speech;
 
@@ -255,6 +256,77 @@ public sealed class AzureSpeechService : ISpeechService
         _preparedAudioConfig?.Dispose();
         _preparedAudioConfig = null;
     }
+
+    /// <inheritdoc />
+    public string CurrentVoice => _speechConfig.SpeechSynthesisVoiceName;
+
+    /// <inheritdoc />
+    public void SetVoice(string voiceShortName)
+    {
+        _speechConfig.SpeechSynthesisVoiceName = voiceShortName;
+        _logger.LogInformation("TTS voice changed to {Voice}", voiceShortName);
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<CoreVoiceInfo>> GetAvailableVoicesAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            // AI-102: SpeechSynthesizer.GetVoicesAsync retrieves the list of available voices
+            // from the Speech service. Using AudioConfig = null avoids opening a speaker device.
+            using var synthesizer = new SpeechSynthesizer(_speechConfig, null as AudioConfig);
+            var result = await synthesizer.GetVoicesAsync("en-US").ConfigureAwait(false);
+
+            if (result.Reason == ResultReason.VoicesListRetrieved && result.Voices.Count > 0)
+            {
+                var voices = result.Voices
+                    .Where(v => v.Locale.Equals("en-US", StringComparison.OrdinalIgnoreCase))
+                    .Select(v => new CoreVoiceInfo(v.ShortName, v.LocalName, v.Gender.ToString()))
+                    .OrderBy(v => v.DisplayName, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                _logger.LogInformation("Retrieved {Count} en-US voices from Azure", voices.Count);
+                return voices;
+            }
+
+            _logger.LogWarning("Azure voice list retrieval returned {Reason}, using fallback list", result.Reason);
+            return FallbackVoices;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to retrieve voices from Azure, using fallback list");
+            return FallbackVoices;
+        }
+    }
+
+    /// <summary>
+    /// Static fallback list of popular en-US neural voices returned when the Azure fetch fails.
+    /// </summary>
+    internal static readonly IReadOnlyList<CoreVoiceInfo> FallbackVoices =
+    [
+        new("en-US-AIGenerate1Neural", "AI Generate 1", "Male"),
+        new("en-US-AIGenerate2Neural", "AI Generate 2", "Female"),
+        new("en-US-AmberNeural", "Amber", "Female"),
+        new("en-US-AnaNeural", "Ana", "Female"),
+        new("en-US-AriaNeural", "Aria", "Female"),
+        new("en-US-AshleyNeural", "Ashley", "Female"),
+        new("en-US-BrandonNeural", "Brandon", "Male"),
+        new("en-US-ChristopherNeural", "Christopher", "Male"),
+        new("en-US-CoraNeural", "Cora", "Female"),
+        new("en-US-DavisNeural", "Davis", "Male"),
+        new("en-US-ElizabethNeural", "Elizabeth", "Female"),
+        new("en-US-EricNeural", "Eric", "Male"),
+        new("en-US-GuyNeural", "Guy", "Male"),
+        new("en-US-JacobNeural", "Jacob", "Male"),
+        new("en-US-JaneNeural", "Jane", "Female"),
+        new("en-US-JasonNeural", "Jason", "Male"),
+        new("en-US-JennyNeural", "Jenny", "Female"),
+        new("en-US-MichelleNeural", "Michelle", "Female"),
+        new("en-US-MonicaNeural", "Monica", "Female"),
+        new("en-US-NancyNeural", "Nancy", "Female"),
+        new("en-US-SaraNeural", "Sara", "Female"),
+        new("en-US-TonyNeural", "Tony", "Male"),
+    ];
 
     /// <summary>
     /// Helper that executes a side-effect action and returns <c>null</c>, enabling
