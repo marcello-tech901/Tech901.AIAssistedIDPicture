@@ -37,6 +37,8 @@ public class KioskFlowViewModelTests : IDisposable
         _audioDevices.Setup(a => a.GetInputDevices()).Returns([]);
         _audioDevices.Setup(a => a.GetOutputDevices()).Returns([]);
         _camera.Setup(c => c.EnumerateDevices()).Returns(new List<string>());
+        _roster.Setup(r => r.GetAllStudents()).Returns(new List<Student>());
+        _roster.Setup(r => r.GetCompletedStudents()).Returns(new List<Student>());
 
         var configuration = new Mock<IConfiguration>();
 
@@ -96,6 +98,7 @@ public class KioskFlowViewModelTests : IDisposable
             _sut,
             _speech.Object,
             _faceDetection.Object,
+            new Mock<IConfiguration>().Object,
             NullLogger<AdminViewModel>.Instance);
 
         _serviceProvider.Setup(sp => sp.GetService(typeof(AdminViewModel)))
@@ -139,6 +142,7 @@ public class KioskFlowViewModelTests : IDisposable
             _sut,
             _speech.Object,
             _faceDetection.Object,
+            new Mock<IConfiguration>().Object,
             NullLogger<AdminViewModel>.Instance);
 
         _serviceProvider.Setup(sp => sp.GetService(typeof(AdminViewModel)))

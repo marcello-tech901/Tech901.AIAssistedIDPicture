@@ -27,6 +27,7 @@ public class RosterService : IRosterService
     private readonly object _lock = new();
     private readonly List<Student> _students = [];
     private readonly HashSet<string> _completedIds = new(StringComparer.OrdinalIgnoreCase);
+    private string? _sourceFilePath;
     private DateTime _sessionStartedAt;
     private int _retakeCount;
     private int _failureCount;
@@ -77,6 +78,18 @@ public class RosterService : IRosterService
     public RosterService(ILogger<RosterService> logger)
     {
         _logger = logger;
+    }
+
+    /// <inheritdoc />
+    public bool HasLoadedRoster
+    {
+        get { lock (_lock) { return _students.Count > 0; } }
+    }
+
+    /// <inheritdoc />
+    public string? SourceFilePath
+    {
+        get { lock (_lock) { return _sourceFilePath; } }
     }
 
     /// <summary>
@@ -217,6 +230,7 @@ public class RosterService : IRosterService
             {
                 _students.Clear();
                 _completedIds.Clear();
+                _sourceFilePath = csvPath;
                 _sessionStartedAt = DateTime.UtcNow;
                 _students.AddRange(parsedStudents);
             }
@@ -439,6 +453,64 @@ public class RosterService : IRosterService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to load session state from {Path}", path);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task SaveRosterAsync(string path, CancellationToken ct = default)
+    {
+        try
+        {
+            PersistedRoster roster;
+            lock (_lock)
+            {
+                roster = new PersistedRoster
+                {
+                    SourceFilePath = _sourceFilePath,
+                    ImportedAt = _sessionStartedAt,
+                    Students = _students.ToList(),
+                };
+            }
+
+            var json = JsonSerializer.Serialize(roster, new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(path, json, ct).ConfigureAwait(false);
+            _logger.LogInformation("Roster saved to {Path} ({Count} students)", path, roster.Students.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save roster to {Path}", path);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> LoadPersistedRosterAsync(string path, CancellationToken ct = default)
+    {
+        if (!File.Exists(path))
+            return false;
+
+        try
+        {
+            var json = await File.ReadAllTextAsync(path, ct).ConfigureAwait(false);
+            var roster = JsonSerializer.Deserialize<PersistedRoster>(json);
+            if (roster is null || roster.Students.Count == 0)
+                return false;
+
+            lock (_lock)
+            {
+                _students.Clear();
+                _completedIds.Clear();
+                _sourceFilePath = roster.SourceFilePath;
+                _sessionStartedAt = roster.ImportedAt;
+                _students.AddRange(roster.Students);
+            }
+
+            _logger.LogInformation("Roster loaded from {Path} ({Count} students)", path, roster.Students.Count);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load persisted roster from {Path}", path);
+            return false;
         }
     }
 

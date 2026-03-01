@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Tech901.IdPhoto.Core.Interfaces;
 using Tech901.IdPhoto.Core.Models;
@@ -118,6 +119,7 @@ public partial class AdminViewModel : ObservableObject
         KioskFlowViewModel kioskFlow,
         ISpeechService speech,
         IFaceDetectionService faceDetection,
+        IConfiguration configuration,
         ILogger<AdminViewModel> logger)
     {
         _roster = roster;
@@ -129,8 +131,18 @@ public partial class AdminViewModel : ObservableObject
         _faceDetection = faceDetection;
         _logger = logger;
 
+        // Populate settings from configuration
+        OutputDirectory = configuration["Kiosk:OutputDirectory"] ?? "./output";
+        FilenameTemplate = configuration["Kiosk:FilenameTemplate"] ?? "{StudentId}_{LastName}_{FirstName}";
+        OutputFormat = configuration["Kiosk:OutputFormat"] ?? "jpg";
+
         RefreshDevices();
         RefreshCameraDevices();
+
+        // Populate from the singleton RosterService so the DataGrid shows
+        // existing students when re-entering the admin panel.
+        RosterFilePath = _roster.SourceFilePath;
+        RefreshStudents();
     }
 
     [RelayCommand]
@@ -175,6 +187,13 @@ public partial class AdminViewModel : ObservableObject
             LastImportResult = result;
             IsImportResultVisible = true;
             RefreshStudents();
+
+            // Persist the parsed roster so it survives app restarts
+            if (!string.IsNullOrWhiteSpace(OutputDirectory))
+            {
+                var rosterPath = Path.Combine(OutputDirectory, "roster.json");
+                await _roster.SaveRosterAsync(rosterPath, ct);
+            }
         }
         catch (InvalidOperationException ex)
         {
@@ -212,7 +231,9 @@ public partial class AdminViewModel : ObservableObject
         if (!string.IsNullOrWhiteSpace(OutputDirectory))
         {
             var sessionPath = Path.Combine(OutputDirectory, "session.json");
+            var rosterPath = Path.Combine(OutputDirectory, "roster.json");
             await _roster.SaveSessionStateAsync(sessionPath, ct);
+            await _roster.SaveRosterAsync(rosterPath, ct);
         }
     }
 

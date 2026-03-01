@@ -87,4 +87,30 @@ public interface IRosterService
     /// <param name="path">Absolute file path of the saved session to load.</param>
     /// <param name="ct">Optional cancellation token.</param>
     Task LoadSessionStateAsync(string path, CancellationToken ct = default);
+
+    /// <summary>
+    /// Persists the current roster (parsed students) to a JSON file so the roster
+    /// survives application restarts without requiring the original CSV.
+    /// </summary>
+    /// <param name="path">Absolute file path for the saved roster.</param>
+    /// <param name="ct">Optional cancellation token.</param>
+    Task SaveRosterAsync(string path, CancellationToken ct = default);
+
+    /// <summary>
+    /// Restores a previously persisted roster from a JSON file.
+    /// </summary>
+    /// <param name="path">Absolute file path of the saved roster to load.</param>
+    /// <param name="ct">Optional cancellation token.</param>
+    /// <returns><see langword="true"/> if the roster was loaded; <see langword="false"/> if the file was missing or corrupt.</returns>
+    Task<bool> LoadPersistedRosterAsync(string path, CancellationToken ct = default);
+
+    /// <summary>
+    /// Whether the roster has any students loaded (from CSV import or persisted file).
+    /// </summary>
+    bool HasLoadedRoster { get; }
+
+    /// <summary>
+    /// The original CSV file path from which the roster was imported, if available.
+    /// </summary>
+    string? SourceFilePath { get; }
 }

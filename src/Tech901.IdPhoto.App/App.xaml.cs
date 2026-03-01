@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
@@ -81,6 +82,29 @@ public partial class App : Application
         {
             Log.Warning(ex, "Camera initialization failed — starting in offline mode");
             kioskVm.TransitionToIdle();
+        }
+
+        // Restore persisted roster and session state so participants survive app restarts
+        try
+        {
+            var config = _host.Services.GetRequiredService<IConfiguration>();
+            var outputDir = config["Kiosk:OutputDirectory"] ?? "./output";
+            var rosterPath = Path.Combine(outputDir, "roster.json");
+            var sessionPath = Path.Combine(outputDir, "session.json");
+
+            var rosterService = _host.Services.GetRequiredService<IRosterService>();
+            var rosterLoaded = await rosterService.LoadPersistedRosterAsync(rosterPath);
+
+            // Only load session state if the roster was loaded — completed IDs reference student IDs
+            if (rosterLoaded)
+            {
+                await rosterService.LoadSessionStateAsync(sessionPath);
+                Log.Information("Persisted roster and session state restored from {OutputDir}", outputDir);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Failed to restore persisted state — starting fresh");
         }
     }
 

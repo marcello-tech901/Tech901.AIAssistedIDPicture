@@ -290,4 +290,81 @@ public class RosterServiceTests : IDisposable
         result.HasWarnings.Should().BeTrue();
         result.Duration.Should().BeGreaterThan(TimeSpan.Zero);
     }
+
+    // --- Roster persistence tests ---
+
+    [Fact]
+    public async Task SaveRosterAsync_PersistsStudentsToFile()
+    {
+        var csv = "StudentId,FirstName,LastName\n001,John,Doe\n002,Jane,Smith\n";
+        var csvPath = CreateTempCsv(csv);
+        await _sut.LoadRosterAsync(csvPath);
+
+        var rosterPath = Path.GetTempFileName();
+        _tempFiles.Add(rosterPath);
+        await _sut.SaveRosterAsync(rosterPath);
+
+        File.Exists(rosterPath).Should().BeTrue();
+        var content = await File.ReadAllTextAsync(rosterPath);
+        content.Should().Contain("John");
+        content.Should().Contain("Smith");
+    }
+
+    [Fact]
+    public async Task LoadPersistedRosterAsync_RestoresStudents()
+    {
+        var csv = "StudentId,FirstName,LastName\n001,John,Doe\n002,Jane,Smith\n";
+        var csvPath = CreateTempCsv(csv);
+        await _sut.LoadRosterAsync(csvPath);
+
+        var rosterPath = Path.GetTempFileName();
+        _tempFiles.Add(rosterPath);
+        await _sut.SaveRosterAsync(rosterPath);
+
+        // Create a fresh instance and load the persisted roster
+        var freshService = new RosterService(NullLogger<RosterService>.Instance);
+        var loaded = await freshService.LoadPersistedRosterAsync(rosterPath);
+
+        loaded.Should().BeTrue();
+        freshService.GetAllStudents().Should().HaveCount(2);
+        freshService.GetAllStudents()[0].FirstName.Should().Be("John");
+        freshService.GetAllStudents()[1].FirstName.Should().Be("Jane");
+    }
+
+    [Fact]
+    public async Task LoadPersistedRosterAsync_WhenFileDoesNotExist_ReturnsFalse()
+    {
+        var result = await _sut.LoadPersistedRosterAsync("/nonexistent/path/roster.json");
+
+        result.Should().BeFalse();
+        _sut.GetAllStudents().Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task LoadPersistedRosterAsync_WhenFileCorrupt_ReturnsFalse()
+    {
+        var corruptPath = Path.GetTempFileName();
+        _tempFiles.Add(corruptPath);
+        await File.WriteAllTextAsync(corruptPath, "{ not valid json !!!");
+
+        var result = await _sut.LoadPersistedRosterAsync(corruptPath);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task HasLoadedRoster_AfterImport_ReturnsTrue()
+    {
+        var csv = "StudentId,FirstName,LastName\n001,John,Doe\n";
+        var csvPath = CreateTempCsv(csv);
+        await _sut.LoadRosterAsync(csvPath);
+
+        _sut.HasLoadedRoster.Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasLoadedRoster_WhenEmpty_ReturnsFalse()
+    {
+        _sut.HasLoadedRoster.Should().BeFalse();
+    }
 }

@@ -37,6 +37,7 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
     private readonly IFaceDetectionService _faceDetection;
     private readonly ISpeechService _speech;
     private readonly IDispatcher _dispatcher;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<KioskFlowViewModel> _logger;
 
     /// <summary>The participant currently moving through the photo flow.</summary>
@@ -105,6 +106,7 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
         _faceDetection = faceDetection;
         _speech = speech;
         _dispatcher = dispatcher;
+        _configuration = configuration;
         _logger = logger;
 
         if (int.TryParse(configuration["Kiosk:Camera:DeviceIndex"], out var configIndex))
@@ -421,6 +423,11 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
             await _imageProcessing.SaveImageAsync(cropped, outputPath);
 
             _roster.MarkCompleted(_currentStudent.StudentId);
+
+            // Auto-save session state so completed IDs survive crashes
+            var outputDir = _configuration["Kiosk:OutputDirectory"] ?? "./output";
+            var sessionPath = Path.Combine(outputDir, "session.json");
+            FireAndForget(_roster.SaveSessionStateAsync(sessionPath));
 
             _logger.LogInformation("Photo saved for {StudentId} at {Path}", _currentStudent.StudentId, outputPath);
             TransitionTo(KioskState.Complete);
