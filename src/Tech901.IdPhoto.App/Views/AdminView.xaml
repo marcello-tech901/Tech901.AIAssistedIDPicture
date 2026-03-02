@@ -83,10 +83,10 @@
       <!-- Left panel: Controls in glass card -->
       <Border Grid.Column="0"
               Style="{StaticResource GlassCardStyle}"
-              Padding="28,24,40,24">
+              Padding="28,24,12,24">
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       Style="{StaticResource OnyxScrollViewerStyle}">
-          <StackPanel>
+          <StackPanel Margin="0,0,20,0">
             <!-- ═══════════════ AZURE SERVICES STATUS ═══════════════ -->
             <Border Visibility="{Binding IsServiceStatusVisible, Converter={StaticResource BoolToVisConverter}}"
                     Margin="0,0,0,20">
@@ -343,7 +343,7 @@
 
             <!-- ═══════════════ ROSTER SECTION ═══════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-              <TextBlock Text="&#x1F4CB;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{StaticResource WhiteDimBrush}" VerticalAlignment="Center" Margin="0,0,10,0" />
               <TextBlock Text="ROSTER"
                          Style="{StaticResource LabelTextStyle}" />
             </StackPanel>
@@ -450,7 +450,7 @@
 
             <!-- ═══════════════ OUTPUT SECTION ═══════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,28,0,8">
-              <TextBlock Text="&#x1F4C1;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{StaticResource WhiteDimBrush}" VerticalAlignment="Center" Margin="0,0,10,0" />
               <TextBlock Text="OUTPUT SETTINGS"
                          Style="{StaticResource LabelTextStyle}" />
             </StackPanel>
@@ -540,7 +540,7 @@
 
             <!-- ═══════════════ CAMERA SECTION ═══════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,28,0,8">
-              <TextBlock Text="&#x1F4F7;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="&#xE722;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{StaticResource WhiteDimBrush}" VerticalAlignment="Center" Margin="0,0,10,0" />
               <TextBlock Text="CAMERA"
                          Style="{StaticResource LabelTextStyle}" />
             </StackPanel>
@@ -617,7 +617,7 @@
 
             <!-- ═══════════════ AUDIO DEVICES SECTION ═══════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,28,0,8">
-              <TextBlock Text="&#x1F50A;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="&#xE767;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{StaticResource WhiteDimBrush}" VerticalAlignment="Center" Margin="0,0,10,0" />
               <TextBlock Text="AUDIO DEVICES"
                          Style="{StaticResource LabelTextStyle}" />
             </StackPanel>
@@ -679,7 +679,7 @@
             <!-- ═══════════════ VOICE SELECTION ═══════════════ -->
             <StackPanel Visibility="{Binding IsSpeechAvailable, Converter={StaticResource BoolToVisConverter}}">
               <StackPanel Orientation="Horizontal" Margin="0,28,0,8">
-                <TextBlock Text="&#x1F399;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBlock Text="&#xE720;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{StaticResource WhiteDimBrush}" VerticalAlignment="Center" Margin="0,0,10,0" />
                 <TextBlock Text="TTS VOICE"
                            Style="{StaticResource LabelTextStyle}" />
               </StackPanel>
@@ -742,7 +742,7 @@
 
             <!-- ═══════════════ ACTIONS ═══════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,28,0,8">
-              <TextBlock Text="&#x26A1;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{StaticResource WhiteDimBrush}" VerticalAlignment="Center" Margin="0,0,10,0" />
               <TextBlock Text="ACTIONS"
                          Style="{StaticResource LabelTextStyle}" />
             </StackPanel>
