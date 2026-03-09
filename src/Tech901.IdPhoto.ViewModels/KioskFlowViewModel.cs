@@ -283,7 +283,6 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
                 break;
 
             case KioskState.RosterMatch:
-                FireAndForget(_speech.SpeakAsync("We found a few matches. Please select your name."));
                 break;
 
             case KioskState.Positioning:
@@ -302,12 +301,12 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
                 break;
 
             case KioskState.Review:
-                FireAndForget(_speech.SpeakAsync("Here's your photo. Accept it or retake."));
                 var review = Resolve<ReviewViewModel>();
                 review.LoadImage(_capturedPhoto!);
                 review.Accepted += OnPhotoAccepted;
                 review.RetakeRequested += () => TransitionTo(KioskState.Positioning);
                 SetCurrentViewModel(review);
+                FireAndForget(StartReviewAsync(review));
                 break;
 
             case KioskState.Processing:
@@ -370,8 +369,8 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
         };
         rosterMatch.MatchDenied += () => TransitionTo(KioskState.NameCapture);
         CurrentState = KioskState.RosterMatch;
-        FireAndForget(_speech.SpeakAsync("We found a few matches. Please select your name."));
         SetCurrentViewModel(rosterMatch);
+        FireAndForget(StartRosterMatchAsync(rosterMatch));
     }
 
     /// <summary>
@@ -445,6 +444,36 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
     /// while the greeting plays, the microphone is ready the moment the greeting finishes.
     /// This eliminates the awkward silence participants would otherwise experience.
     /// </summary>
+    private async Task StartReviewAsync(ReviewViewModel vm)
+    {
+        var prepareTask = _speech.PrepareListenAsync();
+        await _speech.SpeakAsync(
+            _speech.IsAvailable
+                ? "Here's your photo. Say use it, or say retake."
+                : "Here's your photo. Accept it or retake.");
+        await prepareTask;
+        vm.StartVoiceListening();
+    }
+
+    private async Task StartRosterMatchAsync(RosterMatchViewModel vm)
+    {
+        var prepareTask = _speech.PrepareListenAsync();
+        string prompt = vm.IsSingleMatch
+            ? (_speech.IsAvailable
+                ? $"Is this you? {vm.TopMatchName}. Say yes or no."
+                : $"Is this you? {vm.TopMatchName}.")
+            : vm.IsMultipleMatch
+                ? (_speech.IsAvailable
+                    ? "We found a few matches. Say your name or a number to select."
+                    : "We found a few matches. Please select your name.")
+                : (_speech.IsAvailable
+                    ? "No match found. Say try again."
+                    : "No match found.");
+        await _speech.SpeakAsync(prompt);
+        await prepareTask;
+        vm.StartVoiceListening();
+    }
+
     private async Task StartNameCaptureAsync(NameCaptureViewModel vm)
     {
         // Start microphone pre-warm in parallel with the TTS greeting

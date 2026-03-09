@@ -4,6 +4,7 @@
              xmlns:converters="clr-namespace:Tech901.IdPhoto.App.Converters">
   <UserControl.Resources>
     <converters:ByteArrayToImageConverter x:Key="ByteArrayToImage" />
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
   </UserControl.Resources>
 
   <Grid>
@@ -75,6 +76,13 @@
                 Style="{StaticResource WarningButtonStyle}"
                 Command="{Binding RetakeCommand}" />
       </StackPanel>
+
+      <TextBlock Text="Say &quot;use it&quot; or &quot;retake&quot;"
+                 Style="{StaticResource CaptionTextStyle}"
+                 Foreground="{StaticResource LimeGreenBrush}"
+                 HorizontalAlignment="Center"
+                 Margin="0,16,0,0"
+                 Visibility="{Binding IsListening, Converter={StaticResource BoolToVisibility}}" />
     </StackPanel>
   </Grid>
 </UserControl>

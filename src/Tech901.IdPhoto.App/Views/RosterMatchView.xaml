@@ -55,6 +55,13 @@
                     Style="{StaticResource WarningButtonStyle}"
                     Command="{Binding DenyCommand}" />
           </StackPanel>
+
+          <TextBlock Text="Say &quot;yes&quot; or &quot;no&quot;"
+                     Style="{StaticResource CaptionTextStyle}"
+                     Foreground="{StaticResource LimeGreenBrush}"
+                     HorizontalAlignment="Center"
+                     Margin="0,16,0,0"
+                     Visibility="{Binding IsListening, Converter={StaticResource BoolToVisibility}}" />
         </StackPanel>
 
         <!-- Multiple match selection -->
@@ -120,6 +127,13 @@
                   Style="{StaticResource PrimaryButtonStyle}"
                   Command="{Binding ConfirmCommand}"
                   HorizontalAlignment="Center" />
+
+          <TextBlock Text="Say a name or number to select"
+                     Style="{StaticResource CaptionTextStyle}"
+                     Foreground="{StaticResource LimeGreenBrush}"
+                     HorizontalAlignment="Center"
+                     Margin="0,16,0,0"
+                     Visibility="{Binding IsListening, Converter={StaticResource BoolToVisibility}}" />
         </StackPanel>
 
         <!-- No match -->
@@ -135,6 +149,13 @@
                   Style="{StaticResource WarningButtonStyle}"
                   Command="{Binding DenyCommand}"
                   HorizontalAlignment="Center" />
+
+          <TextBlock Text="or say &quot;try again&quot;"
+                     Style="{StaticResource CaptionTextStyle}"
+                     Foreground="{StaticResource LimeGreenBrush}"
+                     HorizontalAlignment="Center"
+                     Margin="0,16,0,0"
+                     Visibility="{Binding IsListening, Converter={StaticResource BoolToVisibility}}" />
         </StackPanel>
       </StackPanel>
     </Border>

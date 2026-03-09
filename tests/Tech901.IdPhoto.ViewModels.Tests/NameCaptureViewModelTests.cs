@@ -52,9 +52,17 @@ public class NameCaptureViewModelTests : IDisposable
     [Fact]
     public async Task StartAsync_WhenSpeechAvailable_TransitionsToListeningThenRecognized()
     {
-        // Arrange
+        // Arrange — return name once, then block until cancelled (simulates real listen timeout)
+        var callCount = 0;
         _speech.Setup(s => s.ListenAsync(It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync("Jane Doe");
+            .Returns((TimeSpan? _, CancellationToken ct) =>
+            {
+                if (Interlocked.Increment(ref callCount) == 1)
+                    return Task.FromResult<string?>("Jane Doe");
+                var tcs = new TaskCompletionSource<string?>();
+                ct.Register(() => tcs.TrySetResult(null));
+                return tcs.Task;
+            });
 
         // Act
         await _sut.StartAsync();
@@ -81,17 +89,28 @@ public class NameCaptureViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task ListenCommand_DoesNotCallSpeakAsync()
+    public async Task ListenCommand_AfterRecognition_SpeaksConfirmationPrompt()
     {
-        // Arrange
+        // Arrange — return name once, then block until cancelled
+        var callCount = 0;
         _speech.Setup(s => s.ListenAsync(It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync("John");
+            .Returns((TimeSpan? _, CancellationToken ct) =>
+            {
+                if (Interlocked.Increment(ref callCount) == 1)
+                    return Task.FromResult<string?>("John");
+                var tcs = new TaskCompletionSource<string?>();
+                ct.Register(() => tcs.TrySetResult(null));
+                return tcs.Task;
+            });
 
         // Act
         await _sut.ListenCommand.ExecuteAsync(null);
 
-        // Assert
-        _speech.Verify(s => s.SpeakAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        // Allow fire-and-forget confirmation to start
+        await Task.Delay(50);
+
+        // Assert — confirmation prompt is spoken after recognition
+        _speech.Verify(s => s.SpeakAsync(It.Is<string>(t => t.Contains("John")), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,10 @@ public partial class NameCaptureViewModel : ObservableObject, IDisposable
     private readonly IDispatcher _dispatcher;
     private readonly ILogger<NameCaptureViewModel> _logger;
     private CancellationTokenSource? _listenCts;
+    private CancellationTokenSource? _confirmCts;
+
+    private static readonly string[] SubmitPhrases = ["yes", "correct", "that's right", "continue"];
+    private static readonly string[] RetryPhrases = ["no", "wrong", "try again", "redo"];
 
     [ObservableProperty]
     private string? _recognizedText;
@@ -83,6 +88,9 @@ public partial class NameCaptureViewModel : ObservableObject, IDisposable
         if (!_speech.IsAvailable)
             return;
 
+        // Cancel any ongoing confirmation loop
+        CancelConfirmation();
+
         await ListenInternalAsync(ct).ConfigureAwait(false);
     }
 
@@ -112,6 +120,9 @@ public partial class NameCaptureViewModel : ObservableObject, IDisposable
                     SpeechState = SpeechState.Recognized;
                 });
                 _logger.LogInformation("Speech recognized: {Text}", result);
+
+                // Start voice confirmation loop
+                FireAndForget(StartConfirmationAsync(result));
             }
             else
             {
@@ -135,9 +146,80 @@ public partial class NameCaptureViewModel : ObservableObject, IDisposable
         }
     }
 
+    private async Task StartConfirmationAsync(string recognizedName)
+    {
+        if (!_speech.IsAvailable)
+            return;
+
+        var prepareTask = _speech.PrepareListenAsync();
+        await _speech.SpeakAsync($"I heard {recognizedName}. Is that correct?").ConfigureAwait(false);
+        await prepareTask.ConfigureAwait(false);
+
+        CancelConfirmation();
+        _confirmCts = new CancellationTokenSource();
+        await ConfirmationListenLoopAsync(_confirmCts.Token).ConfigureAwait(false);
+    }
+
+    private async Task ConfirmationListenLoopAsync(CancellationToken ct)
+    {
+        _logger.LogInformation("Name confirmation voice listening started");
+        try
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                var text = await _speech.ListenAsync(TimeSpan.FromSeconds(5), ct).ConfigureAwait(false);
+
+                if (ct.IsCancellationRequested)
+                    break;
+
+                if (string.IsNullOrWhiteSpace(text))
+                    continue;
+
+                var lower = text.ToLowerInvariant();
+
+                if (Array.Exists(SubmitPhrases, phrase => lower.Contains(phrase)))
+                {
+                    _logger.LogInformation("Voice confirmation accepted: \"{Text}\"", text);
+                    _dispatcher.Invoke(Submit);
+                    break;
+                }
+
+                if (Array.Exists(RetryPhrases, phrase => lower.Contains(phrase)))
+                {
+                    _logger.LogInformation("Voice confirmation denied: \"{Text}\"", text);
+                    _dispatcher.Invoke(() =>
+                    {
+                        Retry();
+                        FireAndForget(ListenInternalAsync());
+                    });
+                    break;
+                }
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error during name confirmation voice listening");
+        }
+
+        _logger.LogInformation("Name confirmation voice listening stopped");
+    }
+
+    private void CancelConfirmation()
+    {
+        try
+        {
+            _confirmCts?.Cancel();
+        }
+        catch (ObjectDisposedException) { }
+        _confirmCts?.Dispose();
+        _confirmCts = null;
+    }
+
     [RelayCommand]
     private void Retry()
     {
+        CancelConfirmation();
         RecognizedText = null;
         TypedName = null;
         SpeechState = _speech.IsAvailable ? SpeechState.Ready : SpeechState.Unavailable;
@@ -159,11 +241,19 @@ public partial class NameCaptureViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        CancelConfirmation();
         try
         {
             _listenCts?.Cancel();
         }
         catch (ObjectDisposedException) { }
         _listenCts?.Dispose();
+    }
+
+    private void FireAndForget(Task task, [CallerMemberName] string? caller = null)
+    {
+        task.ContinueWith(
+            t => _logger.LogError(t.Exception, "Unhandled exception in background task from {Caller}", caller),
+            TaskContinuationOptions.OnlyOnFaulted);
     }
 }
