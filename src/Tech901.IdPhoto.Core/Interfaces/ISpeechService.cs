@@ -33,6 +33,20 @@ public interface ISpeechService
     Task SpeakAsync(string text, CancellationToken ct = default);
 
     /// <summary>
+    /// Synthesizes speech from SSML markup, providing control over voice, pitch, rate,
+    /// emphasis, and pauses that plain text cannot express.
+    /// </summary>
+    /// <param name="ssml">A complete SSML document (including &lt;speak&gt; root element).</param>
+    /// <param name="ct">Optional cancellation token.</param>
+    /// <remarks>
+    /// AI-102: SSML (Speech Synthesis Markup Language) is an XML-based markup that gives
+    /// fine-grained control over speech output. Key elements include &lt;prosody&gt; for
+    /// pitch/rate/volume, &lt;break&gt; for pauses, &lt;emphasis&gt; for stress, and
+    /// &lt;phoneme&gt; for pronunciation. See: https://learn.microsoft.com/azure/ai-services/speech-service/speech-synthesis-markup
+    /// </remarks>
+    Task SpeakSsmlAsync(string ssml, CancellationToken ct = default);
+
+    /// <summary>
     /// Listens for speech input from the default microphone and returns the recognized text.
     /// </summary>
     /// <param name="timeout">

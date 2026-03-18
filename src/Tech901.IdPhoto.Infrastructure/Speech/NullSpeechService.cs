@@ -21,6 +21,9 @@ namespace Tech901.IdPhoto.Infrastructure.Speech;
 /// this null object absorbs all calls silently.
 /// </para>
 /// </remarks>
+///
+
+// TODO DEMO-08: AI-102 — Graceful degradation. This no-op service absorbs all speech calls silently. Participants type names instead of speaking. No null-checks needed anywhere downstream.
 public sealed class NullSpeechService : ISpeechService
 {
     /// <inheritdoc />
@@ -30,6 +33,10 @@ public sealed class NullSpeechService : ISpeechService
     /// <inheritdoc />
     /// <remarks>No-op: returns immediately without producing any audio output.</remarks>
     public Task SpeakAsync(string text, CancellationToken ct = default) => Task.CompletedTask;
+
+    /// <inheritdoc />
+    /// <remarks>No-op: returns immediately without producing any audio output.</remarks>
+    public Task SpeakSsmlAsync(string ssml, CancellationToken ct = default) => Task.CompletedTask;
 
     /// <inheritdoc />
     /// <remarks>No-op: returns <c>null</c> immediately, indicating no speech was recognized.</remarks>

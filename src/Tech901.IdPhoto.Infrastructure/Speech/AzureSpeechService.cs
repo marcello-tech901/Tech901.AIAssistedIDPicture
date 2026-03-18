@@ -62,6 +62,8 @@ public sealed class AzureSpeechService : ISpeechService
         if (string.IsNullOrWhiteSpace(_options.Key) || string.IsNullOrWhiteSpace(_options.Region))
             throw new InvalidOperationException("Azure Speech Key and Region must be configured");
 
+        // TODO DEMO-13: AI-102 — SpeechConfig.FromSubscription(key, region). Config is created once and cached (thread-safe). Set breakpoint here to inspect _speechConfig fields.
+
         // AI-102: SpeechConfig.FromSubscription authenticates using a subscription key + region pair.
         // The region determines which Azure data center handles requests (e.g., "eastus").
         _speechConfig = SpeechConfig.FromSubscription(_options.Key, _options.Region);
@@ -93,6 +95,8 @@ public sealed class AzureSpeechService : ISpeechService
 
         try
         {
+            // TODO DEMO-14: AI-102 — TTS: Fresh AudioConfig per call (device handles must be released). SpeakTextAsync for plain text, SpeakSsmlAsync for pitch/rate control. Set breakpoint on line 111 to inspect SpeechSynthesisResult.
+
             // AI-102: AudioConfig targets a specific speaker device when configured,
             // falling back to the system default. Each synthesis call gets a fresh config
             // because the audio device handle should not be held open between calls.
@@ -120,6 +124,45 @@ public sealed class AzureSpeechService : ISpeechService
         }
     }
 
+    // TODO DEMO-21: AI-102 — SSML synthesis. Compare SpeakTextAsync (plain text) vs SpeakSsmlAsync (SSML markup). Set breakpoint to inspect the SSML document and the SpeechSynthesisResult.
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// AI-102: SpeakSsmlAsync sends an SSML document to the Speech service. The SSML must
+    /// be a complete document with a &lt;speak&gt; root element. The voice specified in SSML
+    /// overrides the SpeechConfig voice, allowing per-utterance voice switching.
+    /// </remarks>
+    public async Task SpeakSsmlAsync(string ssml, CancellationToken ct = default)
+    {
+        if (!IsAvailable)
+        {
+            _logger.LogWarning("Speech service is not configured; skipping SSML TTS");
+            return;
+        }
+
+        try
+        {
+            using var audioConfig = !string.IsNullOrWhiteSpace(_options.SpeakerDeviceId)
+                ? AudioConfig.FromSpeakerOutput(_options.SpeakerDeviceId)
+                : AudioConfig.FromDefaultSpeakerOutput();
+            using var synthesizer = new SpeechSynthesizer(_speechConfig, audioConfig);
+
+            // AI-102: SpeakSsmlAsync accepts a full SSML document. Unlike SpeakTextAsync,
+            // you control voice, prosody, breaks, emphasis, and phonemes via XML elements.
+            using var result = await synthesizer.SpeakSsmlAsync(ssml).ConfigureAwait(false);
+
+            if (result.Reason == ResultReason.Canceled)
+            {
+                var cancellation = SpeechSynthesisCancellationDetails.FromResult(result);
+                _logger.LogError("SSML synthesis canceled: {Reason} - {Details}", cancellation.Reason, cancellation.ErrorDetails);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "SSML synthesis failed");
+        }
+    }
+
     /// <summary>
     /// Pre-warms a <see cref="SpeechRecognizer"/> so the next <see cref="ListenAsync"/> call
     /// starts faster by avoiding device-open latency.
@@ -131,6 +174,9 @@ public sealed class AzureSpeechService : ISpeechService
     /// provides a smoother kiosk experience. The pre-warmed recognizer is consumed (and disposed)
     /// by the next <see cref="ListenAsync"/> call.
     /// </remarks>
+ 
+
+    // TODO DEMO-16: AI-102 — Pre-warming pattern. Opening a microphone takes 200-500ms. Creating the recognizer early eliminates perceived latency for the user.
     public Task PrepareListenAsync(CancellationToken ct = default)
     {
         if (!IsAvailable)
@@ -191,6 +237,7 @@ public sealed class AzureSpeechService : ISpeechService
 
             try
             {
+                // TODO DEMO-15: AI-102 — STT: RecognizeOnceAsync = single-shot recognition. Task.WhenAny races it against timeout. Set breakpoint on line 219 to inspect result.Reason and result.Text.
                 var recognizeTask = recognizer.RecognizeOnceAsync();
 
                 // AI-102: Task.WhenAny races the recognition against a timeout delay.
@@ -266,6 +313,8 @@ public sealed class AzureSpeechService : ISpeechService
         _speechConfig.SpeechSynthesisVoiceName = voiceShortName;
         _logger.LogInformation("TTS voice changed to {Voice}", voiceShortName);
     }
+
+    // TODO DEMO-17: AI-102 — Voice enumeration. GetVoicesAsync("en-US") lists all available neural voices. Set breakpoint on line 286 to browse the voice catalog.
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<CoreVoiceInfo>> GetAvailableVoicesAsync(CancellationToken ct = default)

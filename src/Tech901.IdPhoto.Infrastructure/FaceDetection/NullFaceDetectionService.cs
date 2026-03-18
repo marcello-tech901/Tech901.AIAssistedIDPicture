@@ -21,6 +21,7 @@ namespace Tech901.IdPhoto.Infrastructure.FaceDetection;
 /// may not be as precisely framed as face-detected crops.
 /// </para>
 /// </remarks>
+// TODO DEMO-09: AI-102 — Same Null Object Pattern for Face API. Returns null from DetectFaceAsync, triggering center-crop fallback in ImageProcessingService.
 public sealed class NullFaceDetectionService : IFaceDetectionService
 {
     private readonly ILogger<NullFaceDetectionService> _logger;

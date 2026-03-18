@@ -16,6 +16,7 @@ namespace Tech901.IdPhoto.Infrastructure.Configuration;
 /// <c>Azure__Speech__Region</c>) using the double-underscore (<c>__</c>) separator convention.
 /// </para>
 /// </remarks>
+// TODO DEMO-04: AI-102 — Options Pattern binds config sections to strongly-typed POCOs. On kiosk, env vars use __ separator: Azure__Speech__Key → Azure:Speech:Key
 public class AzureSpeechOptions
 {
     /// <summary>

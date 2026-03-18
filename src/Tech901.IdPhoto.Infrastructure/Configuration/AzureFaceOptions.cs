@@ -17,6 +17,7 @@ namespace Tech901.IdPhoto.Infrastructure.Configuration;
 /// .NET configuration maps to nested section paths.
 /// </para>
 /// </remarks>
+// TODO DEMO-05: AI-102 — Face API uses full endpoint URL (not region). Compare: Speech uses SpeechConfig.FromSubscription(key, region), Face uses new FaceClient(uri, credential).
 public class AzureFaceOptions
 {
     /// <summary>

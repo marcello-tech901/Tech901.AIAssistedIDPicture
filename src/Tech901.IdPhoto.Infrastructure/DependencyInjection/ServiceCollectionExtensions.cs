@@ -68,6 +68,8 @@ public static class ServiceCollectionExtensions
         // Audio device enumeration
         services.AddSingleton<IAudioDeviceEnumerator, AudioDeviceEnumerator>();
 
+        // TODO DEMO-06: AI-102 — Resolution-time factory. Config is checked when service is RESOLVED, not registered. This guarantees User Secrets and env vars are loaded. Set breakpoint on line 82 to inspect opts.Key and opts.Region.
+
         // AI-102: Resolution-time factory lambda for Speech service.
         // WHY not registration-time? At registration time, the Generic Host has not yet
         // finished loading all configuration providers (User Secrets, env vars). By deferring
@@ -100,6 +102,7 @@ public static class ServiceCollectionExtensions
                     !string.IsNullOrWhiteSpace(opts.Key), !string.IsNullOrWhiteSpace(opts.Region));
             }
 
+            // TODO DEMO-07: AI-102 — Null Object Pattern. Missing credentials → fallback service, not an exception. Kiosk runs in degraded mode. Set breakpoint here to see which path is taken.
             // Null Object fallback — kiosk runs without speech, no null-checks needed downstream
             return new NullSpeechService();
         });

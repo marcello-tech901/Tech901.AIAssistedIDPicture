@@ -49,6 +49,7 @@ public partial class ImageProcessingService : IImageProcessingService
         {
             using var image = Image.Load(imageData);
 
+            // TODO DEMO-19: AI-102 — Face-aware vs center crop decision. If face landmarks available, crop anchors on nose tip (line 56). Otherwise center-crop fallback (line 69). Set breakpoint to compare both paths.
             SixLabors.ImageSharp.Rectangle cropRect;
             if (face is not null)
             {
@@ -193,6 +194,8 @@ public partial class ImageProcessingService : IImageProcessingService
             cropWidth = cropSize;
             cropHeight = cropSize / targetAspect;
         }
+
+        // TODO DEMO-20: AI-102 — Nose-tip anchoring. The nose tip gives better centering than the face-rectangle center because face rects extend asymmetrically above the forehead. Inspect noseTip.X/Y, cropWidth, cropHeight here.
 
         // Center on nose tip — this gives a natural "looking at camera" composition
         var x = (int)(noseTip.X - cropWidth / 2);

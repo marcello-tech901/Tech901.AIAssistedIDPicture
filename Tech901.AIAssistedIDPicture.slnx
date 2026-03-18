@@ -1,4 +1,21 @@
 <Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/archive/PRD.txt" />
+    <File Path="docs/azure-services-overview.html" />
+    <File Path="docs/claude-code-metrics.html" />
+    <File Path="docs/kiosk-setup-guide.html" />
+    <File Path="docs/PRD-new.md" />
+  </Folder>
+  <Folder Name="/infra/">
+    <File Path="infra/deploy.ps1" />
+    <File Path="infra/Install-Kiosk.ps1" />
+    <File Path="infra/main.bicep" />
+    <File Path="infra/New-CodeSigningCert.ps1" />
+    <File Path="infra/parameters.json" />
+    <File Path="infra/publish.ps1" />
+    <File Path="infra/teardown.ps1" />
+    <File Path="infra/Test-AzureConfig.ps1" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Tech901.IdPhoto.App/Tech901.IdPhoto.App.csproj" />
     <Project Path="src/Tech901.IdPhoto.Core/Tech901.IdPhoto.Core.csproj" />

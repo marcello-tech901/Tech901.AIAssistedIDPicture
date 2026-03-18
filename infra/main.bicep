@@ -37,6 +37,8 @@ param speechSku string = 'F0'
 @description('SKU for Face API (F0 = free, S0 = standard)')
 param faceSku string = 'F0'
 
+// TODO DEMO-01: AI-102 — Azure resource provisioning. Both Speech and Face use Microsoft.CognitiveServices/accounts; the 'kind' property selects which service. F0 = free tier, S0 = paid.
+
 // Speech Service — provides TTS prompts ("Please look at the camera") and
 // STT name capture during the NameCapture kiosk state.
 // The resource type is Microsoft.CognitiveServices/accounts with kind set
@@ -74,6 +76,61 @@ resource faceApi 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
 }
 
 // ---------------------------------------------------------------------------
+// Log Analytics Workspace — centralized logging and metrics for all services.
+// Receives diagnostic logs (request/response, audit, traces) and platform
+// metrics (latency, request counts, error rates, throttling) from both
+// Speech and Face services.
+// ---------------------------------------------------------------------------
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+  name: 'log-tech901-idphoto-${env}'
+  location: location
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+    retentionInDays: 30
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Diagnostic Settings — route logs and metrics to Log Analytics
+// ---------------------------------------------------------------------------
+
+// Speech Service diagnostics: allLogs + Audit categories, plus AllMetrics.
+resource speechDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'speech-diagnostics'
+  scope: speechService
+  properties: {
+    workspaceId: logAnalytics.id
+    logs: [
+      { categoryGroup: 'allLogs', enabled: true }
+      { categoryGroup: 'Audit', enabled: true }
+    ]
+    metrics: [
+      { category: 'AllMetrics', enabled: true }
+    ]
+  }
+}
+
+// Face API diagnostics: allLogs + Audit categories, plus AllMetrics.
+resource faceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'face-diagnostics'
+  scope: faceApi
+  properties: {
+    workspaceId: logAnalytics.id
+    logs: [
+      { categoryGroup: 'allLogs', enabled: true }
+      { categoryGroup: 'Audit', enabled: true }
+    ]
+    metrics: [
+      { category: 'AllMetrics', enabled: true }
+    ]
+  }
+}
+
+// TODO DEMO-02: AI-102 — listKeys() retrieves subscription keys at deploy time. In production, prefer Managed Identity + RBAC over key-based auth.
+
+// ---------------------------------------------------------------------------
 // Outputs — consumed by infra/deploy.ps1 to populate .NET User Secrets
 // (dev) or environment variables (kiosk). The downstream automation reads
 // these with `az deployment group show --query properties.outputs`.
@@ -85,3 +142,4 @@ output speechKey string = speechService.listKeys().key1
 output speechRegion string = speechService.location
 output faceKey string = faceApi.listKeys().key1
 output faceEndpoint string = faceApi.properties.endpoint
+output logAnalyticsWorkspaceId string = logAnalytics.id

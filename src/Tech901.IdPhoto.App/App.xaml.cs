@@ -31,6 +31,7 @@ public partial class App : Application
         _host = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration((_, config) =>
             {
+                // TODO DEMO-03: AI-102 — Configuration layering. Order matters: appsettings.json → User Secrets → Environment Variables. Last source wins. Keys are NEVER in source code.
                 config.SetBasePath(AppContext.BaseDirectory);
                 config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
                 config.AddUserSecrets<App>(optional: true);

@@ -1,9 +1,11 @@
 using System.Runtime.CompilerServices;
+using System.Security;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Tech901.IdPhoto.Core.Enums;
+using Tech901.IdPhoto.Core.Helpers;
 using Tech901.IdPhoto.Core.Interfaces;
 using Tech901.IdPhoto.Core.Models;
 
@@ -317,7 +319,9 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
                 var studentName = _currentStudent?.PreferredName
                     ?? _currentStudent?.FirstName
                     ?? "Student";
-                FireAndForget(_speech.SpeakAsync($"All done! Thank you, {studentName}."));
+                // TODO DEMO-24: AI-102 — SSML <emphasis>. Stresses the participant's name for a more natural, personal feel.
+                FireAndForget(_speech.SpeakSsmlAsync(SsmlBuilder.Build(_speech.CurrentVoice,
+                    $"""All done! Thank you, <emphasis level="strong">{SecurityElement.Escape(studentName)}</emphasis>.""")));
                 var complete = Resolve<CompleteViewModel>();
                 complete.StudentName = studentName;
                 complete.ReturnToIdle += () => TransitionTo(KioskState.Idle);
@@ -402,6 +406,7 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
         {
             _logger.LogInformation("Processing photo for {StudentId}", _currentStudent!.StudentId);
 
+            // TODO DEMO-18: AI-102 — Integration point. Face detection result flows to ImageProcessingService for intelligent cropping. Set breakpoint here to inspect the FaceDetectionResult (nose tip, eye positions, bounding rect).
             var face = await _faceDetection.DetectFaceAsync(_capturedPhoto!);
             var settings = new CropSettings(600, 600, 1.5, "jpg");
 
@@ -447,10 +452,12 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
     private async Task StartReviewAsync(ReviewViewModel vm)
     {
         var prepareTask = _speech.PrepareListenAsync();
-        await _speech.SpeakAsync(
-            _speech.IsAvailable
-                ? "Here's your photo. Say use it, or say retake."
-                : "Here's your photo. Accept it or retake.");
+        // TODO DEMO-25: AI-102 — SSML <prosody pitch>. Upbeat pitch on "Here's your photo" makes the prompt feel encouraging. <break/> separates the instruction naturally.
+        if (_speech.IsAvailable)
+            await _speech.SpeakSsmlAsync(SsmlBuilder.Build(_speech.CurrentVoice,
+                """<prosody pitch="+5%">Here's your photo!</prosody> <break time="300ms"/> Say <emphasis level="moderate">use it</emphasis>, or say <emphasis level="moderate">retake</emphasis>."""));
+        else
+            await _speech.SpeakAsync("Here's your photo. Accept it or retake.");
         await prepareTask;
         vm.StartVoiceListening();
     }
@@ -478,7 +485,9 @@ public partial class KioskFlowViewModel : ObservableObject, IDisposable
     {
         // Start microphone pre-warm in parallel with the TTS greeting
         var prepareTask = _speech.PrepareListenAsync();
-        await _speech.SpeakAsync("Welcome! Please say or type your name.");
+        // TODO DEMO-23: AI-102 — SSML <prosody> and <break>. Rate="slow" slows delivery for clarity. <break time="500ms"/> inserts a half-second pause between sentences.
+        await _speech.SpeakSsmlAsync(SsmlBuilder.Build(_speech.CurrentVoice,
+            """<prosody rate="slow">Welcome!</prosody> <break time="500ms"/> Please say or type your name."""));
         await prepareTask;
         await vm.StartAsync();
     }

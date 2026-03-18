@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Metrics — Tech901 ID Photo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --navy: #003763;
+    --navy-deep: #001e38;
+    --navy-mid: #00294d;
+    --lime: #A4CC27;
+    --lime-dim: rgba(164, 204, 39, 0.15);
+    --lime-glow: rgba(164, 204, 39, 0.4);
+    --black: #141414;
+    --white: #FFFFFF;
+    --gold: #FFBF3B;
+    --gold-dim: rgba(255, 191, 59, 0.15);
+    --off-white: #e8eaed;
+    --muted: #7a8fa6;
+    --card-bg: rgba(0, 41, 77, 0.6);
+    --card-border: rgba(164, 204, 39, 0.12);
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-body: 'DM Mono', 'Courier New', monospace;
+    --font-ui: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy-deep);
+    color: var(--off-white);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* === NOISE TEXTURE OVERLAY === */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* === GRID BACKGROUND === */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(164, 204, 39, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(164, 204, 39, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === LAYOUT === */
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* === HERO === */
+  .hero {
+    padding: 5rem 0 3rem;
+    position: relative;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 2rem;
+    right: 2rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--lime), transparent);
+    opacity: 0.3;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 400;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.1s forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--lime);
+  }
+
+  .hero-subtitle {
+    font-family: var(--font-ui);
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 600px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.2s forwards;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.3s forwards;
+  }
+
+  .hero-meta span { display: flex; align-items: center; gap: 0.4rem; }
+  .hero-meta .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); display: inline-block; }
+
+  /* === SUMMARY CARDS === */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    margin: 3rem 0;
+    background: var(--card-border);
+    border: 1px solid var(--card-border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .card {
+    background: var(--card-bg);
+    padding: 2rem;
+    position: relative;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .card:nth-child(1) { animation-delay: 0.4s; }
+  .card:nth-child(2) { animation-delay: 0.5s; }
+  .card:nth-child(3) { animation-delay: 0.6s; }
+  .card:nth-child(4) { animation-delay: 0.7s; }
+
+  .card-label {
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .card-value {
+    font-family: var(--font-ui);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .card-value .unit {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--lime);
+    margin-left: 0.25rem;
+  }
+
+  .card-detail {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+
+  /* === SECTION HEADERS === */
+  .section {
+    margin: 4rem 0;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .section-number {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-style: italic;
+    color: var(--lime);
+    opacity: 0.6;
+    line-height: 1;
+  }
+
+  .section-title {
+    font-family: var(--font-ui);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--white);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* === SKYLINE CHART (Prompts by Date) === */
+  .skyline {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
+  .skyline-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    height: 280px;
+    min-width: 0;
+    padding-top: 1rem;
+  }
+
+  .skyline-bar {
+    flex: 1;
+    min-width: 40px;
+    max-width: 120px;
+    position: relative;
+    cursor: crosshair;
+    transition: all 0.2s ease;
+    border-radius: 2px 2px 0 0;
+  }
+
+  .skyline-bar::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--black);
+    color: var(--lime);
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 2px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    border: 1px solid var(--card-border);
+    z-index: 10;
+  }
+
+  .skyline-bar:hover::before { opacity: 1; }
+  .skyline-bar:hover { filter: brightness(1.3); }
+
+  .skyline-labels {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    margin-top: 0.5rem;
+  }
+
+  .skyline-label {
+    flex: 1;
+    min-width: 40px;
+    max-width: 120px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .skyline-legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .skyline-legend span {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 1px;
+    display: inline-block;
+  }
+
+  /* === WEEKLY CADENCE === */
+  .weekly-grid {
+    display: grid;
+    grid-template-columns: 120px 1fr 60px;
+    gap: 0;
+    font-size: 0.75rem;
+  }
+
+  .weekly-row {
+    display: contents;
+  }
+
+  .weekly-row > * {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid rgba(164, 204, 39, 0.06);
+    display: flex;
+    align-items: center;
+  }
+
+  .weekly-label {
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+  }
+
+  .weekly-bar-wrap {
+    position: relative;
+  }
+
+  .weekly-bar {
+    height: 24px;
+    background: linear-gradient(90deg, var(--lime), rgba(164, 204, 39, 0.6));
+    border-radius: 1px;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .weekly-bar::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--lime);
+    box-shadow: 0 0 8px var(--lime-glow);
+  }
+
+  .weekly-count {
+    color: var(--white);
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 0.8rem;
+    justify-content: flex-end;
+  }
+
+  /* === TOOL USAGE === */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .tool-bars { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .tool-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 50px;
+    gap: 0.75rem;
+    align-items: center;
+    font-size: 0.75rem;
+  }
+
+  .tool-name {
+    font-family: var(--font-body);
+    color: var(--muted);
+    text-align: right;
+  }
+
+  .tool-bar-wrap {
+    height: 20px;
+    background: rgba(164, 204, 39, 0.06);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .tool-bar {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .tool-count {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    color: var(--white);
+    font-size: 0.8rem;
+  }
+
+  /* === DONUT CHART === */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  .donut-svg { width: 200px; height: 200px; }
+
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .donut-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 1px;
+  }
+
+  .donut-legend-label { color: var(--muted); }
+  .donut-legend-val { color: var(--white); font-family: var(--font-ui); font-weight: 500; }
+
+  /* === TOP SESSIONS TABLE === */
+  .sessions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+  }
+
+  .sessions-table thead th {
+    font-family: var(--font-body);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--card-border);
+    font-weight: 400;
+  }
+
+  .sessions-table tbody td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(164, 204, 39, 0.04);
+    color: var(--off-white);
+  }
+
+  .sessions-table tbody tr:hover {
+    background: rgba(164, 204, 39, 0.03);
+  }
+
+  .session-rank {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--lime);
+    opacity: 0.7;
+  }
+
+  .session-count {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    color: var(--white);
+    font-size: 1rem;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 1px;
+    font-size: 0.6rem;
+    font-family: var(--font-body);
+    letter-spacing: 0.05em;
+    margin: 0.1rem;
+  }
+
+  .tag-read { background: rgba(164, 204, 39, 0.15); color: var(--lime); }
+  .tag-edit { background: rgba(255, 191, 59, 0.15); color: var(--gold); }
+  .tag-bash { background: rgba(255, 100, 100, 0.15); color: #ff8888; }
+  .tag-write { background: rgba(100, 180, 255, 0.15); color: #88bbff; }
+
+  /* === EXEMPLARY PROMPTS === */
+  .prompts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .prompt-group-title {
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--lime);
+    margin: 2rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .prompt-group-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--card-border);
+  }
+
+  .prompt-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-left: 3px solid var(--lime);
+    padding: 1.5rem 1.75rem;
+    border-radius: 0 2px 2px 0;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .prompt-card:hover {
+    border-left-color: var(--gold);
+    transform: translateX(4px);
+  }
+
+  .prompt-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 1px;
+    font-size: 0.6rem;
+    font-family: var(--font-body);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .badge-architecture { background: rgba(164, 204, 39, 0.2); color: var(--lime); }
+  .badge-debugging { background: rgba(255, 191, 59, 0.2); color: var(--gold); }
+  .badge-review { background: rgba(100, 180, 255, 0.2); color: #88bbff; }
+  .badge-iterative { background: rgba(200, 130, 255, 0.2); color: #cc99ff; }
+  .badge-documentation { background: rgba(255, 140, 100, 0.2); color: #ffaa88; }
+  .badge-infrastructure { background: rgba(100, 220, 200, 0.2); color: #88ddcc; }
+
+  .prompt-text {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--off-white);
+    line-height: 1.7;
+    padding: 1rem;
+    background: rgba(0, 14, 28, 0.5);
+    border-radius: 2px;
+    margin-bottom: 0.75rem;
+    border-left: 2px solid rgba(164, 204, 39, 0.15);
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .prompt-text::-webkit-scrollbar { width: 4px; }
+  .prompt-text::-webkit-scrollbar-track { background: transparent; }
+  .prompt-text::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 2px; }
+
+  .prompt-why {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .prompt-why strong {
+    color: var(--lime);
+    font-weight: 500;
+  }
+
+  /* === BEST PRACTICES === */
+  .practices-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--card-border);
+    border: 1px solid var(--card-border);
+    border-radius: 2px;
+    overflow: hidden;
+    counter-reset: practice;
+  }
+
+  .practice {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    counter-increment: practice;
+    position: relative;
+  }
+
+  .practice::before {
+    content: counter(practice, decimal-leading-zero);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 2rem;
+    color: var(--lime);
+    opacity: 0.2;
+    position: absolute;
+    top: 0.75rem;
+    right: 1rem;
+    line-height: 1;
+  }
+
+  .practice-title {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+
+  .practice-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* === FOOTER === */
+  .footer {
+    margin-top: 5rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--card-border);
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .footer a { color: var(--lime); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 900px) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
+    .tools-grid { grid-template-columns: 1fr; }
+    .practices-grid { grid-template-columns: 1fr; }
+    .weekly-grid { grid-template-columns: 80px 1fr 50px; }
+  }
+
+  @media (max-width: 600px) {
+    .cards { grid-template-columns: 1fr; }
+    .container { padding: 0 1rem; }
+    .hero { padding: 3rem 0 2rem; }
+    .hero-title { font-size: 2rem; }
+    .hero-meta { flex-direction: column; gap: 0.5rem; }
+    .donut-wrap { flex-direction: column; }
+  }
+
+  /* === SCROLLBAR === */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--navy-deep); }
+  ::-webkit-scrollbar-thumb { background: var(--navy-mid); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--lime); }
+
+  /* === MONTH DIVIDERS IN SKYLINE === */
+  .month-marker {
+    width: 1px;
+    background: rgba(255, 191, 59, 0.2);
+    align-self: stretch;
+    position: relative;
+  }
+
+  .month-marker::after {
+    content: attr(data-month);
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    color: var(--gold);
+    white-space: nowrap;
+    font-family: var(--font-body);
+  }
+
+  /* === TWO-COL LAYOUT FOR TOOLS + DONUT === */
+  .tools-and-types {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+
+  @media (max-width: 900px) {
+    .tools-and-types { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<div class="container">
+
+  <!-- ===== HERO ===== -->
+  <header class="hero">
+    <div class="hero-eyebrow">Project Retrospective &middot; AI-102 Cohort</div>
+    <h1 class="hero-title">Building with <em>Claude Code</em></h1>
+    <p class="hero-subtitle">A data snapshot of 1,610 prompts across 50 sessions that built the Tech901 AI-Assisted ID Photo kiosk from zero to production in just 14 days.</p>
+    <div class="hero-meta">
+      <span><span class="dot"></span> Tech901.AIAssistedIDPicture</span>
+      <span>Feb 26 – Mar 12, 2026</span>
+      <span>.NET 10 &middot; WPF &middot; Azure AI</span>
+    </div>
+  </header>
+
+  <!-- ===== SUMMARY CARDS ===== -->
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">Total Prompts</div>
+      <div class="card-value">1,610</div>
+      <div class="card-detail">Human → Claude messages</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Sessions</div>
+      <div class="card-value">50</div>
+      <div class="card-detail">Avg 32 prompts / session</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Duration</div>
+      <div class="card-value">14<span class="unit">days</span></div>
+      <div class="card-detail">Feb 26 – Mar 12, 2026</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Tool Uses</div>
+      <div class="card-value">1,416</div>
+      <div class="card-detail">Read, Edit, Bash, Write, …</div>
+    </div>
+  </div>
+
+  <!-- ===== PROMPTS BY DATE (SKYLINE) ===== -->
+  <section class="section animate-on-scroll">
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <span class="section-title">Prompts by Date</span>
+    </div>
+    <div class="skyline" id="skyline-container">
+      <!-- Rendered by JS -->
+    </div>
+    <div class="skyline-legend">
+      <span><span class="legend-swatch" style="background: var(--lime);"></span> February</span>
+      <span><span class="legend-swatch" style="background: var(--gold);"></span> March</span>
+    </div>
+  </section>
+
+  <!-- ===== WEEKLY CADENCE ===== -->
+  <section class="section animate-on-scroll">
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <span class="section-title">Weekly Cadence</span>
+    </div>
+    <div class="weekly-grid" id="weekly-grid">
+      <!-- Rendered by JS -->
+    </div>
+  </section>
+
+  <!-- ===== TOOL USAGE + MESSAGE TYPES ===== -->
+  <section class="section animate-on-scroll">
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <span class="section-title">Tool Usage &amp; Message Types</span>
+    </div>
+    <div class="tools-and-types">
+      <div>
+        <div class="tool-bars" id="tool-bars">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+      <div>
+        <div class="donut-wrap">
+          <svg class="donut-svg" viewBox="0 0 42 42" id="donut-chart">
+            <!-- Rendered by JS -->
+          </svg>
+          <div class="donut-legend" id="donut-legend">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TOP SESSIONS ===== -->
+  <section class="section animate-on-scroll">
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <span class="section-title">Top 10 Sessions</span>
+    </div>
+    <table class="sessions-table">
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th>Date</th>
+          <th>Focus Area</th>
+          <th style="width:90px">Prompts</th>
+          <th>Primary Tools</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="session-rank">1</td><td>Feb 26</td><td>Greenfield implementation — full solution scaffold</td><td class="session-count">237</td><td><span class="tag tag-write">Write</span><span class="tag tag-read">Read</span><span class="tag tag-bash">Bash</span></td></tr>
+        <tr><td class="session-rank">2</td><td>Feb 26</td><td>State machine + kiosk flow implementation</td><td class="session-count">134</td><td><span class="tag tag-read">Read</span><span class="tag tag-edit">Edit</span><span class="tag tag-write">Write</span></td></tr>
+        <tr><td class="session-rank">3</td><td>Feb 26</td><td>Face detection + positioning ViewModel</td><td class="session-count">85</td><td><span class="tag tag-read">Read</span><span class="tag tag-edit">Edit</span><span class="tag tag-bash">Bash</span></td></tr>
+        <tr><td class="session-rank">4</td><td>Feb 26</td><td>Azure DI wiring + config layering</td><td class="session-count">80</td><td><span class="tag tag-read">Read</span><span class="tag tag-edit">Edit</span><span class="tag tag-bash">Bash</span></td></tr>
+        <tr><td class="session-rank">5</td><td>Mar 1</td><td>Admin panel + Azure service diagnostics</td><td class="session-count">78</td><td><span class="tag tag-read">Read</span><span class="tag tag-edit">Edit</span><span class="tag tag-bash">Bash</span></td></tr>
+        <tr><td class="session-rank">6</td><td>Mar 1</td><td>Roster persistence + UI polish</td><td class="session-count">72</td><td><span class="tag tag-read">Read</span><span class="tag tag-edit">Edit</span><span class="tag tag-write">Write</span></td></tr>
+        <tr><td class="session-rank">7</td><td>Mar 9</td><td>Voice confirmation + listening features</td><td class="session-count">62</td><td><span class="tag tag-read">Read</span><span class="tag tag-edit">Edit</span><span class="tag tag-bash">Bash</span></td></tr>
+        <tr><td class="session-rank">8</td><td>Feb 27</td><td>Documentation + CLAUDE.md + deploy scripts</td><td class="session-count">61</td><td><span class="tag tag-read">Read</span><span class="tag tag-write">Write</span><span class="tag tag-bash">Bash</span></td></tr>
+        <tr><td class="session-rank">9</td><td>Mar 1</td><td>Webcam capture quality + image processing</td><td class="session-count">51</td><td><span class="tag tag-read">Read</span><span class="tag tag-edit">Edit</span><span class="tag tag-bash">Bash</span></td></tr>
+        <tr><td class="session-rank">10</td><td>Feb 27</td><td>Theme polish + error handling</td><td class="session-count">45</td><td><span class="tag tag-read">Read</span><span class="tag tag-edit">Edit</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== EXEMPLARY PROMPTS ===== -->
+  <section class="section animate-on-scroll">
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <span class="section-title">Exemplary Prompts</span>
+    </div>
+    <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 1rem;">Twelve prompts that demonstrate best practices in LLM-assisted development — curated from 1,610 interactions.</p>
+
+    <!-- GROUP: Architecture & Planning -->
+    <div class="prompt-group-title">Architecture &amp; Planning</div>
+    <div class="prompts-grid">
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-architecture">Architecture</span>
+        <div class="prompt-text">Come up with an implementation plan for PRD-new.md. This is a .NET WPF kiosk application for capturing ID photos of adult training cohort participants. Never use K-12 language. Azure resources should be provisioned programmatically via Bicep. Include teardown scripts. Use CommunityToolkit.Mvvm, Generic Host DI, and a ViewModel-first navigation pattern.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Sets constraints upfront — language rules, tech stack, infrastructure-as-code — giving the LLM precise boundaries instead of a vague "build me an app." This single prompt shaped the entire project architecture.</div>
+      </div>
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-architecture">Architecture</span>
+        <div class="prompt-text">[12,673-char implementation plan] Complete solution skeleton: 4-project dependency graph (App → ViewModels → Core, App → Infrastructure → Core), state machine transitions, DI registrations, Azure Bicep modules, config layering (appsettings.json → User Secrets → env vars), and publish profile — all specified before writing a single line of code.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Front-loading a comprehensive plan means the LLM produces coherent, consistent code across dozens of files instead of ad-hoc fragments that conflict. The dependency graph prevents circular references from day one.</div>
+      </div>
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-infrastructure">Infrastructure</span>
+        <div class="prompt-text">The Azure DI registration is broken. Speech and Face services always resolve to null fallbacks. I've verified User Secrets are populated correctly via `dotnet user-secrets list`. The issue is that config checks run at registration time (in AddInfrastructure), before the Generic Host has finished building — so IConfiguration isn't fully layered yet. Switch to resolution-time factory lambdas.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Provides root cause analysis with evidence (User Secrets verified), identifies the timing issue (registration vs. resolution), and proposes the exact pattern to use. The LLM doesn't waste tokens on diagnosis.</div>
+      </div>
+
+    </div>
+
+    <!-- GROUP: Debugging & Problem Solving -->
+    <div class="prompt-group-title">Debugging &amp; Problem Solving</div>
+    <div class="prompts-grid">
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-debugging">Debugging</span>
+        <div class="prompt-text">The face detection positioning always says "move back" regardless of distance. The webcam preview is also not mirrored. Root cause: Azure Face API returns landmark coordinates as normalized 0–1 floats, but our PositioningViewModel treats them as pixel values. The math comparing face-width-to-frame-width ratio is off by orders of magnitude. Also flip the preview with ScaleTransform.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Pinpoints the exact mismatch (normalized vs. pixel coordinates), explains the downstream symptom, and bundles a related UX fix. Two bugs, one coherent prompt, zero ambiguity.</div>
+      </div>
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-debugging">Debugging</span>
+        <div class="prompt-text">None of our speech-to-text functionality seems to be engaged. When the user reaches name capture, they should hear a TTS prompt, then the mic opens for STT. Expected: "Please say your name" → mic on → recognition → display result. Observed: silence, no mic activation. The SpeechConfig is created in the constructor but RecognizeOnceAsync is never called from NameCaptureViewModel.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Follows the "Expected / Observed / Evidence" pattern. Narrows the scope from "speech doesn't work" to a specific missing method call in a specific ViewModel — saving multiple rounds of investigation.</div>
+      </div>
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-debugging">Debugging</span>
+        <div class="prompt-text">Webcam capture quality is poor. Three separate issues: (1) OpenCvSharp defaults to 640×480 — we need to request 1920×1080 from the device. (2) The capture path round-trips through JPEG twice (once in WebcamService, once in ImageProcessingService) — keep the raw Mat until final export. (3) The preview and capture share the same frame grab — add a separate high-res capture path.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Decomposes a vague "quality is bad" complaint into three distinct, fixable layers. Each problem has a clear cause and proposed solution. The LLM can tackle them independently.</div>
+      </div>
+
+    </div>
+
+    <!-- GROUP: Iterative Refinement -->
+    <div class="prompt-group-title">Iterative Refinement</div>
+    <div class="prompts-grid">
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-iterative">Iterative Refinement</span>
+        <div class="prompt-text">The TTS-to-mic transition has a noticeable delay. Two causes: (1) 500ms hardcoded Task.Delay between TTS completion and STT start — reduce to 100ms. (2) SpeechRecognizer is created fresh each time — pre-warm it in the constructor so the first call doesn't pay the SDK initialization cost. Keep the existing CancellationToken pattern.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Identifies two independent latency sources with specific fixes. The "keep the existing pattern" note prevents the LLM from over-refactoring working code while fixing the performance issue.</div>
+      </div>
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-iterative">Iterative Refinement</span>
+        <div class="prompt-text">What are we using to import the CSV file? I want to make roster import persistent across sessions — right now the list is lost on restart. Also consider switching to CsvHelper for robustness. Before you plan anything, tell me what the current implementation looks like.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Asks the LLM to explain the current state before proposing changes. This "read before write" pattern prevents solutions built on incorrect assumptions about the existing code.</div>
+      </div>
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-iterative">Iterative Refinement</span>
+        <div class="prompt-text">I want you to look through our application to find places where the UI needs polish. Specific things I've noticed: dropdowns are clipped by their parent containers, custom scrollbars don't match the theme, and some buttons lack hover states. Don't break any existing functionality — this is purely visual.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Gives concrete examples to anchor the search but leaves room for the LLM to find additional issues. The "don't break functionality" guard rail scopes the work clearly.</div>
+      </div>
+
+    </div>
+
+    <!-- GROUP: Code Review & Documentation -->
+    <div class="prompt-group-title">Code Review &amp; Documentation</div>
+    <div class="prompts-grid">
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-review">Code Review</span>
+        <div class="prompt-text">Review the codebase for: (1) async/await correctness — are we blocking the UI thread anywhere? (2) Lock contention — is the RosterService lock too coarse? (3) Azure SDK efficiency — are we disposing SpeechRecognizer correctly? (4) UX responsiveness — any operations that should show a loading state but don't?</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Instead of "review my code," specifies four precise review axes. Each maps to a real failure mode (UI freeze, deadlock, resource leak, perceived lag). The LLM delivers structured findings instead of generic observations.</div>
+      </div>
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-documentation">Documentation</span>
+        <div class="prompt-text">Add educational XML documentation and AI-102 exam objective annotations across 22 files in 5 phases. Map Azure Speech Service usage to AI-102 objective "Implement speech solutions," Face API to "Implement computer vision solutions," and DI patterns to "Plan and manage AI solutions." No code changes — documentation only.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Maps code to an external framework (Microsoft AI-102 exam objectives), turning a codebase into a teaching tool. The "no code changes" constraint ensures documentation doesn't accidentally break anything.</div>
+      </div>
+
+      <div class="prompt-card">
+        <span class="prompt-badge badge-documentation">Documentation</span>
+        <div class="prompt-text">Please analyze this codebase and create a CLAUDE.md file that will help future Claude Code sessions be productive immediately. Include build commands, architecture overview, DI patterns, config layering, and constraints. Don't include generic advice or obvious instructions — only project-specific context that an LLM couldn't infer from the code alone.</div>
+        <div class="prompt-why"><strong>Why it works:</strong> Meta-prompting — using the LLM to create context for future LLM sessions. The anti-pattern guard ("nothing obvious") forces genuinely useful content like the resolution-time factory lambda pattern and the adult-cohort language constraint.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== BEST PRACTICES SUMMARY ===== -->
+  <section class="section animate-on-scroll">
+    <div class="section-header">
+      <span class="section-number">06</span>
+      <span class="section-title">10 Patterns That Worked</span>
+    </div>
+    <div class="practices-grid">
+      <div class="practice">
+        <div class="practice-title">Plan Before You Prompt</div>
+        <div class="practice-desc">The most productive sessions started with a comprehensive implementation plan — dependency graphs, file lists, state machines — before any code was generated. Front-loading architecture prevents rework.</div>
+      </div>
+      <div class="practice">
+        <div class="practice-title">Specify Constraints, Not Steps</div>
+        <div class="practice-desc">Telling the LLM "never use K-12 language" or "use resolution-time factory lambdas" produces better code than step-by-step instructions. Constraints let the LLM find the optimal path within boundaries.</div>
+      </div>
+      <div class="practice">
+        <div class="practice-title">Expected / Observed / Evidence</div>
+        <div class="practice-desc">Bug reports that include what should happen, what does happen, and proof (log excerpts, User Secrets verification) eliminate diagnostic roundtrips. One prompt instead of five.</div>
+      </div>
+      <div class="practice">
+        <div class="practice-title">Decompose Quality Issues</div>
+        <div class="practice-desc">"Quality is bad" becomes three fixable layers: resolution defaults, double compression, shared capture path. Breaking vague complaints into specific causes lets the LLM tackle each independently.</div>
+      </div>
+      <div class="practice">
+        <div class="practice-title">Read Before Write</div>
+        <div class="practice-desc">Asking "what does the current implementation look like?" before requesting changes prevents solutions built on wrong assumptions. This saved entire sessions of rework.</div>
+      </div>
+      <div class="practice">
+        <div class="practice-title">Scoped Review Axes</div>
+        <div class="practice-desc">Instead of "review my code," specify dimensions: async correctness, lock contention, resource disposal, UX responsiveness. Each axis maps to a real failure mode and yields actionable findings.</div>
+      </div>
+      <div class="practice">
+        <div class="practice-title">Guard Rails on Polish Passes</div>
+        <div class="practice-desc">"Fix the UI but don't break functionality" scopes visual work without over-constraining solutions. Give concrete examples to anchor the search, then let the LLM find additional issues.</div>
+      </div>
+      <div class="practice">
+        <div class="practice-title">Bundle Related Fixes</div>
+        <div class="practice-desc">The best prompts addressed 2–3 related issues in one coherent request — like fixing normalized-vs-pixel coordinates AND mirroring the preview. Grouping related changes reduces context-switching overhead.</div>
+      </div>
+      <div class="practice">
+        <div class="practice-title">Preserve What Works</div>
+        <div class="practice-desc">"Keep the existing CancellationToken pattern" prevents the LLM from over-refactoring while fixing a specific issue. Explicitly protect working patterns when requesting targeted changes.</div>
+      </div>
+      <div class="practice">
+        <div class="practice-title">Meta-Prompt for Future Sessions</div>
+        <div class="practice-desc">Using the LLM to create CLAUDE.md — context for future LLM sessions — compounds productivity. Each session starts faster because project-specific knowledge is pre-loaded.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>Tech901 AI-Assisted ID Photo &middot; Built with <a href="https://claude.ai/code" target="_blank">Claude Code</a> &middot; 1,610 prompts over 14 days</p>
+    <p style="margin-top: 0.5rem; opacity: 0.6;">Data snapshot as of March 12, 2026. Metrics extracted from 50 local Claude Code conversation sessions.</p>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  // === DATA ===
+  const dailyData = [
+    { date: 'Feb 26', count: 786, month: 'feb' },
+    { date: 'Feb 27', count: 382, month: 'feb' },
+    { date: 'Feb 28', count: 77, month: 'feb' },
+    { date: 'Mar 1', count: 246, month: 'mar' },
+    { date: 'Mar 9', count: 77, month: 'mar' },
+    { date: 'Mar 12', count: 43, month: 'mar' }
+  ];
+
+  const maxCount = Math.max(...dailyData.map(d => d.count));
+
+  const monthColors = {
+    feb: 'var(--lime)',
+    mar: 'var(--gold)'
+  };
+
+  const monthBg = {
+    feb: 'rgba(164, 204, 39, 0.7)',
+    mar: 'rgba(255, 191, 59, 0.7)'
+  };
+
+  // === SKYLINE CHART ===
+  const skylineContainer = document.getElementById('skyline-container');
+  const chartDiv = document.createElement('div');
+  chartDiv.className = 'skyline-chart';
+  const labelsDiv = document.createElement('div');
+  labelsDiv.className = 'skyline-labels';
+
+  let lastMonth = '';
+  dailyData.forEach((d, i) => {
+    const month = d.date.split(' ')[0];
+    if (month !== lastMonth && lastMonth !== '') {
+      const marker = document.createElement('div');
+      marker.className = 'month-marker';
+      marker.setAttribute('data-month', month);
+      chartDiv.appendChild(marker);
+      const spacer = document.createElement('div');
+      spacer.style.cssText = 'flex: 0; min-width: 1px;';
+      labelsDiv.appendChild(spacer);
+    }
+    lastMonth = month;
+
+    const bar = document.createElement('div');
+    bar.className = 'skyline-bar';
+    const pct = (d.count / maxCount) * 100;
+    bar.style.height = Math.max(pct, 1) + '%';
+    bar.style.background = `linear-gradient(to top, ${monthBg[d.month]}, ${monthColors[d.month]})`;
+    bar.style.boxShadow = d.count > 80 ? `0 0 12px ${monthColors[d.month]}` : 'none';
+    bar.setAttribute('data-tooltip', `${d.date}: ${d.count} prompts`);
+    bar.style.animationDelay = (i * 0.02) + 's';
+    chartDiv.appendChild(bar);
+
+    const label = document.createElement('div');
+    label.className = 'skyline-label';
+    label.textContent = d.date;
+    labelsDiv.appendChild(label);
+  });
+
+  skylineContainer.appendChild(chartDiv);
+  skylineContainer.appendChild(labelsDiv);
+
+  // === WEEKLY CADENCE ===
+  const weeklyData = [
+    { week: 'Feb 23–Mar 1', count: 1491 },
+    { week: 'Mar 9–12', count: 120 }
+  ];
+
+  const maxWeekly = Math.max(...weeklyData.map(w => w.count));
+  const weeklyGrid = document.getElementById('weekly-grid');
+
+  weeklyData.forEach((w, i) => {
+    const row = document.createElement('div');
+    row.className = 'weekly-row';
+    row.innerHTML = `
+      <div class="weekly-label">${w.week}</div>
+      <div class="weekly-bar-wrap">
+        <div class="weekly-bar" style="width: 0%; transition-delay: ${i * 0.08}s;" data-width="${(w.count / maxWeekly) * 100}"></div>
+      </div>
+      <div class="weekly-count">${w.count}</div>
+    `;
+    weeklyGrid.appendChild(row);
+  });
+
+  // === TOOL USAGE BARS ===
+  const toolData = [
+    { name: 'Read', count: 411, color: 'var(--lime)' },
+    { name: 'Edit', count: 295, color: 'var(--gold)' },
+    { name: 'Bash', count: 204, color: '#ff8888' },
+    { name: 'Write', count: 150, color: '#88bbff' },
+    { name: 'TaskUpdate', count: 67, color: '#cc99ff' },
+    { name: 'Grep', count: 53, color: '#ffaa88' },
+    { name: 'Glob', count: 53, color: '#aabb88' },
+    { name: 'Task', count: 53, color: '#88ddcc' },
+    { name: 'TaskCreate', count: 37, color: '#ddaa88' },
+    { name: 'Agent', count: 25, color: '#99aacc' },
+    { name: 'Other', count: 68, color: 'var(--muted)' }
+  ];
+
+  const maxTool = Math.max(...toolData.map(t => t.count));
+  const toolBars = document.getElementById('tool-bars');
+
+  toolData.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'tool-row';
+    row.innerHTML = `
+      <div class="tool-name">${t.name}</div>
+      <div class="tool-bar-wrap">
+        <div class="tool-bar" style="width: 0%; background: ${t.color}; transition-delay: ${i * 0.06}s;" data-width="${(t.count / maxTool) * 100}"></div>
+      </div>
+      <div class="tool-count">${t.count}</div>
+    `;
+    toolBars.appendChild(row);
+  });
+
+  // === DONUT CHART (SVG) ===
+  const messageTypes = [
+    { label: 'Assistant', value: 48, color: 'var(--lime)' },
+    { label: 'User', value: 26, color: 'var(--gold)' },
+    { label: 'Tool Results', value: 18, color: '#88bbff' },
+    { label: 'System', value: 5, color: '#cc99ff' },
+    { label: 'Snapshots', value: 3, color: 'var(--muted)' }
+  ];
+
+  const donutChart = document.getElementById('donut-chart');
+  const donutLegend = document.getElementById('donut-legend');
+  const radius = 15.915;
+  const circumference = 2 * Math.PI * radius;
+  let offset = 25; // Start at 12 o'clock
+
+  // Resolve CSS variables for SVG
+  const colorMap = {
+    'var(--lime)': '#A4CC27',
+    'var(--gold)': '#FFBF3B',
+    'var(--muted)': '#7a8fa6'
+  };
+
+  messageTypes.forEach(mt => {
+    const dashLen = (mt.value / 100) * circumference;
+    const gapLen = circumference - dashLen;
+    const resolvedColor = colorMap[mt.color] || mt.color;
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', '21');
+    circle.setAttribute('cy', '21');
+    circle.setAttribute('r', radius.toString());
+    circle.setAttribute('fill', 'none');
+    circle.setAttribute('stroke', resolvedColor);
+    circle.setAttribute('stroke-width', '4');
+    circle.setAttribute('stroke-dasharray', `${dashLen} ${gapLen}`);
+    circle.setAttribute('stroke-dashoffset', (-offset * circumference / 100).toString());
+    circle.style.transition = 'stroke-dasharray 1s ease';
+    donutChart.appendChild(circle);
+
+    offset += mt.value;
+
+    const item = document.createElement('div');
+    item.className = 'donut-legend-item';
+    item.innerHTML = `
+      <span class="donut-swatch" style="background: ${resolvedColor};"></span>
+      <span class="donut-legend-label">${mt.label}</span>
+      <span class="donut-legend-val">${mt.value}%</span>
+    `;
+    donutLegend.appendChild(item);
+  });
+
+  // Center text for donut
+  const centerText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  centerText.setAttribute('x', '21');
+  centerText.setAttribute('y', '20');
+  centerText.setAttribute('text-anchor', 'middle');
+  centerText.setAttribute('fill', '#FFFFFF');
+  centerText.setAttribute('font-family', 'Space Grotesk, system-ui');
+  centerText.setAttribute('font-size', '4');
+  centerText.setAttribute('font-weight', '700');
+  centerText.textContent = '1,610';
+  donutChart.appendChild(centerText);
+
+  const centerLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  centerLabel.setAttribute('x', '21');
+  centerLabel.setAttribute('y', '24');
+  centerLabel.setAttribute('text-anchor', 'middle');
+  centerLabel.setAttribute('fill', '#7a8fa6');
+  centerLabel.setAttribute('font-family', 'DM Mono, monospace');
+  centerLabel.setAttribute('font-size', '2');
+  centerLabel.textContent = 'messages';
+  donutChart.appendChild(centerLabel);
+
+  // === SCROLL ANIMATIONS ===
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+
+        // Trigger bar animations within this section
+        entry.target.querySelectorAll('.weekly-bar, .tool-bar').forEach(bar => {
+          const targetWidth = bar.getAttribute('data-width');
+          if (targetWidth) {
+            setTimeout(() => { bar.style.width = targetWidth + '%'; }, 100);
+          }
+        });
+
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+})();
+</script>
+
+</body>
+</html>

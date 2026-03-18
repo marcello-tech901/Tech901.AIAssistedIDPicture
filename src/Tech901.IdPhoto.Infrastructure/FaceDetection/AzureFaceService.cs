@@ -26,6 +26,9 @@ namespace Tech901.IdPhoto.Infrastructure.FaceDetection;
 /// within the Face API free-tier throttle (20 calls/minute).
 /// </para>
 /// </remarks>
+
+// TODO DEMO-10: AI-102 — Production hardening. SemaphoreSlim rate limiter (line 44) prevents HTTP 429s proactively. Polly (tenacity in python) retry (line 68) handles them reactively. Set breakpoint on line 147 to see throttle delay.
+// TODO DEMO-10: AI-102 — 
 public sealed class AzureFaceService : IFaceDetectionService
 {
     /// <inheritdoc />
@@ -52,6 +55,8 @@ public sealed class AzureFaceService : IFaceDetectionService
     {
         _logger = logger;
         var opts = options.Value;
+
+        // TODO DEMO-11: AI-102 — AzureKeyCredential authentication. Each request gets Ocp-Apim-Subscription-Key header. Set breakpoint on line 63 to inspect the FaceClient instance.
 
         // AI-102: AzureKeyCredential authenticates each request via the Ocp-Apim-Subscription-Key
         // header. This is the simplest auth model for Azure AI services — suitable for
@@ -96,6 +101,8 @@ public sealed class AzureFaceService : IFaceDetectionService
             // small, side-view, and blurry faces. Recognition04 is the latest recognition model.
             // returnFaceId:false — we only need landmarks for cropping, not identity matching.
             // returnFaceLandmarks:true — provides nose tip, pupil positions, etc. for smart crop.
+
+            // TODO DEMO-12: AI-102 — Detection03 model + returnFaceId:false + returnFaceLandmarks:true. No special permissions needed for landmarks without face IDs. Set breakpoint on line 113 to inspect faces collection, line 123 for landmarks.
             var response = await _client.DetectAsync(
                 data,
                 FaceDetectionModel.Detection03,
